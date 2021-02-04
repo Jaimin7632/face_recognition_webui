@@ -1,4 +1,5 @@
-from src import face_app
+from src.face_app import face_app
 
 if __name__=="__main__":
-    face_app.run()
+    fp = face_app()
+    fp.run()

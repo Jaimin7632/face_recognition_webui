@@ -2,17 +2,18 @@
 """
 This code file mainly comes from https://github.com/dmlc/gluon-cv/blob/master/gluoncv/model_zoo/model_zoo.py
 """
-from .face_recognition import *
 from .face_detection import *
 from .face_genderage import *
-#from .face_alignment import *
+from .face_recognition import *
+
+# from .face_alignment import *
 
 __all__ = ['get_model', 'get_model_list']
 
 _models = {
     'arcface_r100_v1': arcface_r100_v1,
-    #'arcface_mfn_v1': arcface_mfn_v1,
-    #'arcface_outofreach_v1': arcface_outofreach_v1,
+    # 'arcface_mfn_v1': arcface_mfn_v1,
+    # 'arcface_outofreach_v1': arcface_outofreach_v1,
     'retinaface_r50_v1': retinaface_r50_v1,
     'retinaface_mnet025_v1': retinaface_mnet025_v1,
     'retinaface_mnet025_v2': retinaface_mnet025_v2,
@@ -47,4 +48,3 @@ def get_model_list():
 
     """
     return sorted(_models.keys())
-

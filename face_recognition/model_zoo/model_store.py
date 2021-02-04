@@ -1,13 +1,13 @@
-
 """
 This code file mainly comes from https://github.com/dmlc/gluon-cv/blob/master/gluoncv/model_zoo/model_store.py
 """
 from __future__ import print_function
 
 __all__ = ['get_model_file']
+
+import glob
 import os
 import zipfile
-import glob
 
 from ..utils import download, check_sha1
 
@@ -33,11 +33,12 @@ def short_hash(name):
 def find_params_file(dir_path):
     if not os.path.exists(dir_path):
         return None
-    paths = glob.glob("%s/*.params"%dir_path)
-    if len(paths)==0:
+    paths = glob.glob("%s/*.params" % dir_path)
+    if len(paths) == 0:
         return None
     paths = sorted(paths)
     return paths[-1]
+
 
 def get_model_file(name, root=os.path.join('~', '.insightface', 'models')):
     r"""Return location for the pretrained on local file system.
@@ -62,7 +63,7 @@ def get_model_file(name, root=os.path.join('~', '.insightface', 'models')):
     root = os.path.expanduser(root)
     dir_path = os.path.join(root, name)
     file_path = find_params_file(dir_path)
-    #file_path = os.path.join(root, file_name + '.params')
+    # file_path = os.path.join(root, file_name + '.params')
     sha1_hash = _model_sha1[name]
     if file_path is not None:
         if check_sha1(file_path, sha1_hash):
@@ -93,5 +94,3 @@ def get_model_file(name, root=os.path.join('~', '.insightface', 'models')):
         return file_path
     else:
         raise ValueError('Downloaded file has different hash. Please try again.')
-
-
