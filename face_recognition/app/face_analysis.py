@@ -68,12 +68,13 @@ class FaceAnalysis:
                 gender, age = self.ga_model.get(_img)
             face = Face(face_crop=_img, bbox=bbox, landmark=landmark, det_score=det_score, embedding=embedding, gender=gender, age=age
                         , normed_embedding=normed_embedding, embedding_norm=embedding_norm)
-            ret.append((_img, face))
+            ret.append([_img, face])
 
         if self.rec_model is not None:
             embedding_list = self.rec_model.get_embeddings_list([img for img, face in ret], batch_size=self.batch_size)
-            for i, (img, face) in ret:
-                face.embedding = embedding_list[i].flatten()
+            for i, data in enumerate(ret):
+                img, face = data
+                face.embedding = embedding_list[i]
                 face.embedding_norm = norm(face.embedding)
                 face.normed_embedding = face.embedding / face.embedding_norm
 

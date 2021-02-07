@@ -3,10 +3,14 @@ from __future__ import division
 import cv2
 import mxnet as mx
 import numpy as np
+from copy import deepcopy
+import math
 
 __all__ = ['FaceRecognition',
            'arcface_r100_v1', 'arcface_outofreach_v1', 'arcface_mfn_v1',
            'get_arcface']
+
+from sklearn import preprocessing
 
 
 class FaceRecognition:

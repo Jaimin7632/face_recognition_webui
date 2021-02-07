@@ -23,4 +23,6 @@ class face_app:
             for face in faces:
                 result = embedding_utils.compare_with_enrolled_data(query=face.embedding)
 
+        return frames[0]
+
 
