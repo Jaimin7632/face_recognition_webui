@@ -1,6 +1,28 @@
 from model import *
 
 
+def init_database():
+    """
+    init when server start(ex. frontend, backend)
+    :return:
+    """
+    database.create_tables([User, Entry, Camera], safe=False)
+    tables = database.get_tables()
+
+    #TODO: remove on production
+    if Camera not in tables:
+        add_camera('0')
+
+
+
+def add_camera(camera_path):
+    camera = Camera.create(camera_path=camera_path)
+    return True, camera.id
+
+def get_active_camera_list():
+    cameras = Camera.select().objects()
+    return True, [camera.camera_path for camera in cameras]
+
 def add_user(**kargs):
     try:
         user = User.create(**kargs)
@@ -9,9 +31,10 @@ def add_user(**kargs):
     except Exception as e:
         return False, str(e)
 
+
 def get_person_details_from_id(id):
     try:
-        person = User.get(User.id==id)
+        person = User.get(User.id == id)
         return True, [person.name, person.email, person.enrol_date]
     except Exception as e:
         return False, "No record found for id"

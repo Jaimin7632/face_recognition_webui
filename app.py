@@ -1,4 +1,5 @@
-from src.face_app import face_app
+from database import db_utils
+from src.face_app import Face_app
 import cv2
 from flask import Flask, render_template, Response
 from multiprocessing import Process
@@ -24,10 +25,11 @@ def video_feed():
 
 
 def start_server():
+    db_utils.init_database()
     app.run(host='0.0.0.0', debug=True)
 
 if __name__=="__main__":
-    fp = face_app()
+    fp = Face_app()
     print("Face app initialized")
     # server_process = Process(target=start_server)
     # server_process.start()

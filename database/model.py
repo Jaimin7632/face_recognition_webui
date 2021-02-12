@@ -17,3 +17,8 @@ class User(BaseModel):
 class Entry(BaseModel):
     user = ForeignKeyField(User, backref='entry', on_delete='CASCADE')
     time = DateTimeField()
+
+class Camera(BaseModel):
+    camera_path = CharField()
+    date= DateTimeField(null=True)
+    status = BooleanField(default=True)

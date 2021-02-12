@@ -1,13 +1,13 @@
+import os
+import pickle
 import shutil
+from pathlib import Path
+
+import cv2
+import mxnet as mx
+import torch
 
 import config
-import pickle
-from pathlib import Path
-import cv2
-import os
-from face_recognition import face_analysis
-import torch
-import mxnet as mx
 from face_recognition import face_analysis
 
 """
@@ -69,11 +69,12 @@ def load_gallery():
 
                 embedding_dict['embeddings'][person_name][img_name] = emb
 
-            if deleted_files > 0 : print(f'{person_name} - {deleted_files} deleted. No face found after align.')
+            if deleted_files > 0: print(f'{person_name} - {deleted_files} deleted. No face found after align.')
 
         ref_dir = embedding_dict
     save_ref_file()
     print("Gallery Loaded.")
+
 
 def save_ref_file():
     """
@@ -97,7 +98,8 @@ def save_ref_file():
 
     gallery_imgs_emb = torch.Tensor(gallery_imgs_emb).to(
         '0' if mx.context.num_gpus() else "cpu")
-    precomputed_dist = torch.Tensor.sum(gallery_imgs_emb ** 2, dim=1) if len(gallery_class_names)> 1 else None
+    precomputed_dist = torch.Tensor.sum(gallery_imgs_emb ** 2, dim=1) if len(gallery_class_names) > 1 else None
+
 
 def compare_with_enrolled_data(query):
     """
@@ -117,7 +119,7 @@ def compare_with_enrolled_data(query):
 
     if precomputed_dist is not None:
         emb = torch.Tensor(query).reshape(1, 512).to(
-                                 '0' if mx.context.num_gpus() else "cpu")
+            '0' if mx.context.num_gpus() else "cpu")
         dist = torch.Tensor.sum(emb ** 2, dim=1) + precomputed_dist - 2 * emb.mm(
             torch.transpose(gallery_imgs_emb, 0, 1))
         dist = torch.sqrt_(torch.abs(dist)).tolist()[0]
@@ -170,6 +172,7 @@ def add_person(id, img):
     except Exception as e:
         print(e)
         return False
+
 
 def remove_person(id):
     global ref_dir
