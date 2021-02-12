@@ -9,7 +9,7 @@ from src import embedding_utils, utils
 
 
 class Face_app:
-    def __init__(self):
+    def __init__(self, queue=None):
         # Database initialization
         db_utils.init_database()
 
@@ -21,12 +21,19 @@ class Face_app:
                 print(f'Error: camera: {camera_path}, {cap_result}')
             self.CAMERA_OBJECTS.append(cap_result)
 
+
         # Load gallery data into memory
         embedding_utils.load_gallery()
+
+        # queue for perform operation in running server
+        self.queue = queue
 
         cv2.namedWindow('result', cv2.WINDOW_NORMAL)
 
     def run(self):
+        #Process queued operation
+        # self.processed_queued_functions()
+
         # Gather all frames
         frames = []
         for camera in self.CAMERA_OBJECTS:
@@ -42,6 +49,7 @@ class Face_app:
             frames_output.append([frame, faces])
             for face in faces:
                 result = embedding_utils.compare_with_enrolled_data(query=face.normed_embedding)
+                #TODO: store entry
 
         # draw names and bbox on images
         for frame, output in frames_output:
@@ -54,6 +62,15 @@ class Face_app:
         cv2.imshow('result', combined_image)
         cv2.waitKey(1)
         return combined_image
+
+    def processed_queued_functions(self):
+        if self.queue is None:
+            return
+        while self.queue.empty():
+            data = self.queue.get()
+            fun_name, kargs = data.items()
+            function = self.__getattribute__(fun_name)
+            function(**kargs)
 
     def add_person(self, img, name):
         status, result = db_utils.add_user(name=name, enrol_date=datetime.now())
@@ -89,7 +106,7 @@ class Face_app:
 
     def get_camera_object(self, camera_path):
         try:
-            if camera_path.is_numeric():
+            if str(camera_path).isnumeric():
                 camera_path = int(camera_path)
             cap = cv2.VideoCapture(camera_path)
             return True, cap

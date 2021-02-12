@@ -1,12 +1,20 @@
 from database import db_utils
 from src.face_app import Face_app
 import cv2
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request, jsonify
 from multiprocessing import Process
 import traceback
+from multiprocessing import Queue
 
-app = Flask(__name__)
+app = Flask(__name__,template_folder='frontend_templates')
+queue = None
 frame = None
+
+def create_response(status, message):
+    data= {}
+    data['status'] = status
+    data['data'] = message
+    return jsonify(data)
 
 @app.route('/')
 def index():
@@ -24,16 +32,48 @@ def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
+@app.route('/enrol', methods=['POST'])
+def enrol_person():
+    image = request.files['image']
+    name = request.form['name']
+
+    if image is None or name is None:
+        return create_response(False, "image or name parameter missing")
+    data= dict()
+    data['add_person'] = {
+        'name': name,
+        'img': image
+    }
+    queue.put(data)
+    return create_response(True, f'{name} is added for enrol')
+
+@app.route('/remove_enrol', methods=['POST'])
+def remove_enrol_person():
+    name = request.value['id']
+
+    if id is None:
+        return create_response(False, "id parameter missing")
+    data= dict()
+    data['remove_person'] = {
+        'id': id
+    }
+    queue.put(data)
+    return create_response(True, f'{name} is added for enrol')
+
 def start_server():
     db_utils.init_database()
     app.run(host='0.0.0.0', debug=True)
 
 if __name__=="__main__":
-    fp = Face_app()
+    queue = Queue()
+    fp = Face_app(queue=queue)
+
     print("Face app initialized")
-    # server_process = Process(target=start_server)
-    # server_process.start()
+    server_process = Process(target=start_server)
+    server_process.start()
     print("Server started")
+
+
     while True:
         try:
             image = fp.run()
@@ -48,5 +88,5 @@ if __name__=="__main__":
             print(e)
             break
 
-    # server_process.terminate()
+    server_process.terminate()
     print("Server successfully stopped")

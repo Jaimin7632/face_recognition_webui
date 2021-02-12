@@ -1,16 +1,17 @@
-from model import *
+from .model import *
 
 
 def init_database():
     """
-    init when server start(ex. frontend, backend)
+    init when server start(ex. frontend_templates, backend)
     :return:
     """
-    database.create_tables([User, Entry, Camera], safe=False)
-    tables = database.get_tables()
-
-    #TODO: remove on production
-    if Camera not in tables:
+    if not database.table_exists(User):
+        database.create_tables([User])
+    if not database.table_exists(Entry):
+        database.create_tables([Entry])
+    if not database.table_exists(Camera):
+        database.create_tables([Camera])
         add_camera('0')
 
 
