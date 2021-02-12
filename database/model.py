@@ -11,7 +11,7 @@ class BaseModel(Model):
 class User(BaseModel):
     name = CharField()
     email = CharField(null=True)
-    enroll_date = DateTimeField(null=True)
+    enrol_date = DateTimeField(null=True)
 
 
 class Entry(BaseModel):

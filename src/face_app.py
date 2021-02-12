@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from database import db_utils
 from face_recognition import face_analysis
 import cv2
 import mxnet as mx
@@ -39,4 +42,26 @@ class face_app:
         cv2.waitKey(1)
         return frames[0]
 
+    def add_person(self, img, name):
+        status, result = db_utils.add_user(name=name,enrol_date=datetime.now())
+        if not status:
+            print(result)
+        status = embedding_utils.add_person(id=result, img=img)
+        if not status:
+            db_utils.remove_user(result)
+            print("Error : image not add in filesystem")
 
+        print(f'{name} person successfully added')
+        return True
+
+    def remove_person(self, id):
+        person_name = db_utils.get_person_details_from_id(id)[0]
+        status, result = db_utils.remove_user(id=id)
+        if not status:
+            print(result)
+        status = embedding_utils.remove_person(id=id)
+        if not status:
+            print("Error : image not removed from filesystem")
+
+        print(f'{person_name} successfully removed')
+        return True

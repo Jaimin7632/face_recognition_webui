@@ -1,3 +1,5 @@
+import shutil
+
 import config
 import pickle
 from pathlib import Path
@@ -109,6 +111,7 @@ def compare_with_enrolled_data(query):
     sorted_distance_with_enrolled_data
     """
     global gallery_imgs_emb, gallery_class_names, precomputed_dist
+
     query = query.tolist()
     output_dict = {}
 
@@ -131,3 +134,62 @@ def compare_with_enrolled_data(query):
         return ["unknown", 100000]
 
     return class_dist[0]
+
+
+def add_person(id, img):
+    """
+    Add user
+    :param id:
+    :param img:
+    :return: True if successfully added else False
+    """
+    global ref_dir
+
+    try:
+        faces = face_analysis.get(img=img, det_scale=1)
+        if len(faces) < 0:
+            return False
+
+        id = str(id)
+
+        # Update gallery data file
+        ref_dir['embeddings'].setdefault(id, {})
+        number_of_images = len(ref_dir['embeddings'][id])
+        img_name = str(number_of_images) + '.png'
+
+        emb = faces[0].normed_embedding
+        ref_dir['embeddings'][id][img_name] = emb
+
+        # store image in filestystem
+        store_path = os.path.join(config.ENROLLED_DATA_PATH, id, str(number_of_images) + '.png')
+        cv2.imwrite(store_path, img)
+
+        save_ref_file()
+
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+def remove_person(id):
+    global ref_dir
+
+    try:
+        id = str(id)
+        if id not in ref_dir['embeddings']:
+            print(f'Remove failed : requested id-{id} not found')
+            return False
+
+        # Update gallery data file
+        del ref_dir['embeddings'][id]
+
+        # remove filestystem
+        path = os.path.join(config.ENROLLED_DATA_PATH, id)
+        shutil.rmtree(path)
+
+        save_ref_file()
+
+        return True
+    except Exception as e:
+        print(e)
+        return False

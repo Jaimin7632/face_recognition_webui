@@ -9,6 +9,13 @@ def add_user(**kargs):
     except Exception as e:
         return False, str(e)
 
+def get_person_details_from_id(id):
+    try:
+        person = User.get(User.id==id)
+        return True, [person.name, person.email, person.enrol_date]
+    except Exception as e:
+        return False, "No record found for id"
+
 
 def remove_user(id):
     try:
