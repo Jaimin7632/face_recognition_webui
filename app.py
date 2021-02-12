@@ -2,6 +2,7 @@ from src.face_app import face_app
 import cv2
 from flask import Flask, render_template, Response
 from multiprocessing import Process
+import traceback
 
 app = Flask(__name__)
 frame = None
@@ -28,10 +29,22 @@ def start_server():
 if __name__=="__main__":
     fp = face_app()
     print("Face app initialized")
-    server_process = Process(target=start_server)
-    server_process.start()
+    # server_process = Process(target=start_server)
+    # server_process.start()
     print("Server started")
     while True:
-        image = fp.run()
-        if image is not None:
-            frame = image
+        try:
+            image = fp.run()
+            if image is not None:
+                frame = image
+        except KeyboardInterrupt:
+            print('keyboard intrupt')
+            traceback.print_exc()
+            break
+        except Exception as e:
+            traceback.print_exc()
+            print(e)
+            break
+
+    # server_process.terminate()
+    print("Server successfully stopped")

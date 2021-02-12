@@ -6,6 +6,7 @@ import os
 from face_recognition import face_analysis
 import torch
 import mxnet as mx
+from face_recognition import face_analysis
 
 """
 Face Embedding Management 
@@ -16,19 +17,22 @@ ref_dir = None
 precomputed_dist, gallery_class_names, gallery_imgs_emb = None, None, None
 
 
-def load_gallery(self):
+def load_gallery():
     """
     Load gallery if gallery's json file available if not then load from gallery folder path
     Read crop dirs' images, preprocess them, store in ref_dir (Embeddings and face pose) and store in DB.
     :return:
     """
+    global gallery_imgs_emb, gallery_class_names, precomputed_dist, ref_dir
+
     print("Loading gallery data...")
     gallery_path = Path(config.ENROLLED_DATA_PATH)
+    gallery_path.mkdir(exist_ok=True, parents=True)
     gallery_file_path = gallery_path / "gallery.pickle"
 
     if gallery_file_path.exists():
         with open(gallery_file_path, 'rb') as handle:
-            self.ref_dir = pickle.load(handle)
+            ref_dir = pickle.load(handle)
     else:
         if not gallery_path.exists():
             gallery_path.mkdir(parents=True)
@@ -58,15 +62,8 @@ def load_gallery(self):
                 #     os.remove(img_path)
                 #     continue
 
-                img = self.image_pre_process(img)
-                if not self.is_image_gallery_compatible(img=img):
-                    deleted_files += 1
-                    os.remove(img_path)
-                    continue
-
-                emb = face_analysis.rec_model.get_embedding(img).tolist()
-                if self.is_matched_with_blackimg_emb(emb):
-                    continue
+                faces = face_analysis.get(img=img, det_scale=1)
+                emb = faces[0].normed_embedding
 
                 embedding_dict['embeddings'][person_name][img_name] = emb
 
@@ -81,7 +78,7 @@ def save_ref_file():
     save gallery data
     :return:
     """
-    global gallery_imgs_emb, gallery_class_names, precomputed_dist
+    global gallery_imgs_emb, gallery_class_names, precomputed_dist, ref_dir
 
     print("Saving reference file and update dependent var...")
 
@@ -98,7 +95,7 @@ def save_ref_file():
 
     gallery_imgs_emb = torch.Tensor(gallery_imgs_emb).to(
         '0' if mx.context.num_gpus() else "cpu")
-    precomputed_dist = torch.Tensor.sum(gallery_imgs_emb ** 2, dim=1)
+    precomputed_dist = torch.Tensor.sum(gallery_imgs_emb ** 2, dim=1) if len(gallery_class_names)> 1 else None
 
 def compare_with_enrolled_data(query):
     """
@@ -112,18 +109,21 @@ def compare_with_enrolled_data(query):
     sorted_distance_with_enrolled_data
     """
     global gallery_imgs_emb, gallery_class_names, precomputed_dist
-
-    emb = torch.Tensor(query).reshape(1, 512).to(
-                             '0' if mx.context.num_gpus() else "cpu")
-    dist = torch.Tensor.sum(emb ** 2, dim=1) + precomputed_dist - 2 * emb.mm(
-        torch.transpose(gallery_imgs_emb, 0, 1))
-    dist = torch.sqrt_(torch.abs(dist)).tolist()[0]
+    query = query.tolist()
     output_dict = {}
-    for i, val in enumerate(dist):
-        output_dict.setdefault(gallery_class_names[i], []).append(val)
-    for key, val in output_dict.items():
-        value = sorted(val)
-        output_dict[key] = sum(value[:3]) / 3 if len(value) > 2 else len(value)
+
+    if precomputed_dist is not None:
+        emb = torch.Tensor(query).reshape(1, 512).to(
+                                 '0' if mx.context.num_gpus() else "cpu")
+        dist = torch.Tensor.sum(emb ** 2, dim=1) + precomputed_dist - 2 * emb.mm(
+            torch.transpose(gallery_imgs_emb, 0, 1))
+        dist = torch.sqrt_(torch.abs(dist)).tolist()[0]
+
+        for i, val in enumerate(dist):
+            output_dict.setdefault(gallery_class_names[i], []).append(val)
+        for key, val in output_dict.items():
+            value = sorted(val)
+            output_dict[key] = sum(value[:3]) / 3 if len(value) > 2 else len(value)
 
     class_dist = sorted(output_dict.items(), key=lambda x: x[1])
 
