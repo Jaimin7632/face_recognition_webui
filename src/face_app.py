@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import cv2
-
+import numpy as np
 import config
 from database import db_utils
 from face_recognition import face_analysis
@@ -15,10 +15,13 @@ class Face_app:
 
         self.CAMERA_IDS, self.CAMERA_OBJECTS = [], []
         _, camera_paths = db_utils.get_active_camera_list()
+        print(camera_paths)
         for camera_path in camera_paths:
             cap_status, cap_result = self.get_camera_object(camera_path)
             if not cap_status:
                 print(f'Error: camera: {camera_path}, {cap_result}')
+
+            print(f"Cam initialized : {camera_path}")
             self.CAMERA_OBJECTS.append(cap_result)
 
 
@@ -32,7 +35,7 @@ class Face_app:
 
     def run(self):
         #Process queued operation
-        # self.processed_queued_functions()
+        self.processed_queued_functions()
 
         # Gather all frames
         frames = []

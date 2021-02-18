@@ -6,11 +6,11 @@ def init_database():
     init when server start(ex. frontend_templates, backend)
     :return:
     """
-    if not database.table_exists(User):
+    if not database.table_exists('user'):
         database.create_tables([User])
-    if not database.table_exists(Entry):
+    if not database.table_exists('entry'):
         database.create_tables([Entry])
-    if not database.table_exists(Camera):
+    if not database.table_exists('camera'):
         database.create_tables([Camera])
         add_camera('0')
 
@@ -19,6 +19,10 @@ def init_database():
 def add_camera(camera_path):
     camera = Camera.create(camera_path=camera_path)
     return True, camera.id
+
+def remove_camera(camera_path):
+    rows_affected = Camera.delete().where(camera_path=camera_path).execute()
+    return True, rows_affected
 
 def get_active_camera_list():
     cameras = Camera.select().objects()
