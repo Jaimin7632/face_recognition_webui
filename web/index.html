@@ -10,7 +10,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='asserts/css/style.css') }}">
 
 </head>
-<body ng-app="myApp" ng-controller="customersCtrl">
+<body>
 
 <nav class="navbar navbar-inverse">
   <div class="container-fluid">
@@ -25,32 +25,8 @@
   </div>
 </nav>
 
- <div id="includedContent"></div>
+<div id="includedContent"></div>
 <!--<img id="img">-->
 </body>
-
+<script src="{{ url_for('static', filename='asserts/js/custom.js') }}"></script>
 </html>
-
-
-<script>
-var static = "{{url_for('static',filename='')}}";
-$("#includedContent").load(static+"src/video_feed.html");
-$('.nav li').click(function(){
-  page = $(this).attr('id');
-  if (page.includes('.html')){
-  $("#includedContent").load(static+"src/"+page);
-  }else{
-     $("#includedContent").load(page);
-  }
-});
-
-    $('.remove-enrol').click(function(){
-       $.post("/remove_enrol_person", {'id': $(this).attr('data')},function(data, status){
-
-    alert(data.data);
-    //$("#img").attr('src', 'data:image/jpg;base64,'+String(data.data));
-  });
-    });
-
-
-</script>

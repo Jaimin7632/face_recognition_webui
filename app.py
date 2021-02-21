@@ -12,7 +12,7 @@ from database import db_utils
 
 app = Flask(__name__, template_folder='web', static_folder='web')
 queue = None
-frame = np.ones((500, 500), dtype=np.uint8)
+frame = np.ones((1024, 800), dtype=np.uint8)
 
 
 def create_response(status, message):

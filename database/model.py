@@ -1,6 +1,11 @@
+import config
 from peewee import *
 
-database = SqliteDatabase('resources/database_sqllite.db')
+if config.USE_MYSQL_DATABASE:
+    from peewee_mssql import MssqlDatabase
+    database = MssqlDatabase('Face_recognition', host=config.mysql_host, user=config.mysql_user, password=config.mysql_password)
+else:
+    database = SqliteDatabase('resources/database_sqllite.db')
 
 
 class BaseModel(Model):

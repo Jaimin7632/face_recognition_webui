@@ -1,16 +1,22 @@
 <!--add -->
-<form action="/enrol" enctype=multipart/form-data method='POST'>
-    <input name='image' type="file">
-    <input name='name' type="text" value="test_name">
-    <input type="submit">
-</form>
-<!--remove -->
-<form action="/remove_enrol" enctype=multipart/form-data method='POST'>
-    <input name='id' type="text" value="id">
-    <input type="submit">
-</form>
+
+<center>
+    <h3>Enrol New</h3>
+<form enctype=multipart/form-data method='POST'>
+    <div class="row" style="width:50vw;">
+        <div class="col-md-6"><input class="form-control" name='image' type="file"></div>
+        <div class="col-md-6"><input class="form-control" name='name' type="text" value="test_name"></div><br>
+        <br>
+        <input class="form-control btn btn-success" id="enrol-submit" style="width:20vw;"  type="submit" value="ADD">
+    </div>
 
 
+
+</form>
+</center>
+
+
+<h3>Enrol Data</h3>
 <table class="table">
     <thead>
     <tr>
