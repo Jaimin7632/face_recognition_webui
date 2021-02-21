@@ -15,8 +15,7 @@ class Face_app:
 
         self.CAMERA_IDS, self.CAMERA_OBJECTS = [], []
         _, camera_paths = db_utils.get_active_camera_list()
-        print(camera_paths)
-        for camera_path in camera_paths:
+        for c_id, camera_path in camera_paths:
             cap_status, cap_result = self.get_camera_object(camera_path)
             if not cap_status:
                 print(f'Error: camera: {camera_path}, {cap_result}')

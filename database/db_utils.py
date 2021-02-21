@@ -15,18 +15,17 @@ def init_database():
         add_camera('0')
 
 
-
 def add_camera(camera_path):
     camera = Camera.create(camera_path=camera_path)
     return True, camera.id
 
-def remove_camera(camera_path):
-    rows_affected = Camera.delete().where(camera_path=camera_path).execute()
+def remove_camera(id):
+    rows_affected = Camera.delete().where(id=id).execute()
     return True, rows_affected
 
 def get_active_camera_list():
     cameras = Camera.select().objects()
-    return True, [camera.camera_path for camera in cameras]
+    return True, [[camera.id, camera.camera_path] for camera in cameras]
 
 def add_user(**kargs):
     try:

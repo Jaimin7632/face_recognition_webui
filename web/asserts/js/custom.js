@@ -17,9 +17,25 @@ $('.remove-enrol').click(function(){
       });
 });
 
+$('.remove-camera').click(function(){
+   $.post("/remove_camera", {'id': $(this).attr('data')},function(data, status){
+        alert(data.data);
+        //$("#img").attr('src', 'data:image/jpg;base64,'+String(data.data));
+      });
+});
+
 $(".enrol-submit").click(function(){
     form = $(this).closest("form");;
     $.post('/enrol/', form.serialize(),
+        function(returnedData){
+             //console.log(returnedData);
+             alert(returnedData.data);
+         });
+});
+
+$(".add-camera").click(function(){
+    form = $(this).closest("form");;
+    $.post('/add_camera/', form.serialize(),
         function(returnedData){
              //console.log(returnedData);
              alert(returnedData.data);
