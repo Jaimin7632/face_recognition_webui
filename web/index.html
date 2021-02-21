@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Face Recognition</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='asserts/css/bootstrap.min.css') }}">
+  <script src="{{ url_for('static', filename='asserts/js/jquery-3.2.1.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='asserts/js/bootstrap.min.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='asserts/css/style.css') }}">
+
+</head>
+<body ng-app="myApp" ng-controller="customersCtrl">
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Face Recognition</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li id="video_feed.html"><a href="#">Camera View</a></li>
+      <li id="get_person_page"><a href="#">Enroll</a></li>
+      <li id="get_entries"><a href="#">Entries</a></li>
+    </ul>
+  </div>
+</nav>
+
+ <div id="includedContent"></div>
+<!--<img id="img">-->
+</body>
+
+</html>
+
+
+<script>
+var static = "{{url_for('static',filename='')}}";
+$("#includedContent").load(static+"src/video_feed.html");
+$('.nav li').click(function(){
+  page = $(this).attr('id');
+  if (page.includes('.html')){
+  $("#includedContent").load(static+"src/"+page);
+  }else{
+     $("#includedContent").load(page);
+  }
+});
+
+    $('.remove-enrol').click(function(){
+       $.post("/remove_enrol_person", {'id': $(this).attr('data')},function(data, status){
+
+    alert(data.data);
+    //$("#img").attr('src', 'data:image/jpg;base64,'+String(data.data));
+  });
+    });
+
+
+</script>

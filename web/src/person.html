@@ -1,0 +1,39 @@
+<!--add -->
+<form action="/enrol" enctype=multipart/form-data method='POST'>
+    <input name='image' type="file">
+    <input name='name' type="text" value="test_name">
+    <input type="submit">
+</form>
+<!--remove -->
+<form action="/remove_enrol" enctype=multipart/form-data method='POST'>
+    <input name='id' type="text" value="id">
+    <input type="submit">
+</form>
+
+
+<table class="table">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>email</th>
+        <th>Enroll date</th>
+        <th>#</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for d in data %}
+    <tr>
+
+        <td>{{d.0}}</td>
+        <td>{{d.1}}</td>
+        <td>{{d.2}}</td>
+        <td>{{d.3}}</td>
+        <td>
+            <input class="btn btn-danger remove-enrol" data="{{d.0}}" type="button" value="X">
+        </td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>

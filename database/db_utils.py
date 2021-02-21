@@ -3,7 +3,7 @@ from .model import *
 
 def init_database():
     """
-    init when server start(ex. frontend_templates, backend)
+    init when server start(ex. web, backend)
     :return:
     """
     if not database.table_exists('user'):
@@ -35,6 +35,13 @@ def add_user(**kargs):
         return True, user.id
     except Exception as e:
         return False, str(e)
+
+def get_enrolled_persons():
+    try:
+        persons = User.select().objects()
+        return True, [[person.id, person.name, person.email, person.enrol_date] for person in persons]
+    except Exception as e:
+        return False, e
 
 
 def get_person_details_from_id(id):
@@ -74,12 +81,22 @@ def search_entry(id=None, starttime=None, endtime=None, limit=None):
             conditions.append(Entry.time >= starttime)
         if endtime:
             conditions.append(Entry.time <= endtime)
-        if limit:
-            entries = Entry.join(User).select().where(*conditions).limit(limit).objects()
-        else:
-            entries = Entry.join(User).select().where(*conditions).objects()
 
-        data = [[entry.id, entry.User.id, entry.time] for entry in entries]
+
+        if limit is not None:
+            if conditions:
+                entries = Entry.select().join(User).where(*conditions).limit(limit).objects()
+            else:
+                entries = Entry.select().join(User).limit(limit).objects()
+
+        else:
+            if conditions:
+                entries = Entry.select().join(User).where(*conditions).objects()
+            else:
+                entries = Entry.select().join(User).objects()
+
+
+        data = [[entry.id, entry.User.name, entry.time] for entry in entries]
         return True, data
 
     except Exception as e:

@@ -33,4 +33,4 @@ Face analysis can contain all required model (detection, recognition)
 gpu_list = mx.context.num_gpus()
 face_analysis = app.FaceAnalysis(det_name='retinaface_r50_v1', rec_name='arcface_r100_v1', \
                                  ga_name=None, batch_size=config.BATCH_SIZE)
-face_analysis.prepare(ctx_id=gpu_list if gpu_list else -1)
+face_analysis.prepare(ctx_id=-1)
