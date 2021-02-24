@@ -20,7 +20,7 @@ def add_camera(camera_path):
     return True, camera.id
 
 def remove_camera(id):
-    rows_affected = Camera.delete().where(id=id).execute()
+    rows_affected = Camera.delete().where(Camera.id==id).execute()
     return True, rows_affected
 
 def get_active_camera_list():

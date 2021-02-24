@@ -97,7 +97,7 @@ def save_ref_file():
             gallery_class_names.append(class_name)
 
     gallery_imgs_emb = torch.Tensor(gallery_imgs_emb).to(
-        '0' if config.USE_GPU else "cpu")
+        0 if config.USE_GPU else "cpu")
     precomputed_dist = torch.Tensor.sum(gallery_imgs_emb ** 2, dim=1) if len(gallery_class_names) > 1 else None
 
 
@@ -119,7 +119,7 @@ def compare_with_enrolled_data(query):
 
     if precomputed_dist is not None:
         emb = torch.Tensor(query).reshape(1, 512).to(
-            '0' if config.USE_GPU else "cpu")
+            0 if config.USE_GPU else "cpu")
         dist = torch.Tensor.sum(emb ** 2, dim=1) + precomputed_dist - 2 * emb.mm(
             torch.transpose(gallery_imgs_emb, 0, 1))
         dist = torch.sqrt_(torch.abs(dist)).tolist()[0]

@@ -1,7 +1,7 @@
 # Face Recognition Software with Web UI
 
 
-###Setup
+### Setup
 1. Create conda env with python 3.6 or above
 2. Redirect to project dir
 2. Install requirements.yml<br>

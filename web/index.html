@@ -8,7 +8,6 @@
   <script src="{{ url_for('static', filename='asserts/js/jquery-3.2.1.min.js') }}"></script>
   <script src="{{ url_for('static', filename='asserts/js/bootstrap.min.js') }}"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='asserts/css/style.css') }}">
-
 </head>
 <body>
 
@@ -18,14 +17,14 @@
       <a class="navbar-brand" href="#">Face Recognition</a>
     </div>
     <ul class="nav navbar-nav">
-      <li id="video_feed_page"><a href="#">Camera View</a></li>
-      <li id="get_person_page"><a href="#">Enroll</a></li>
-      <li id="get_entries"><a href="#">Entries</a></li>
+      <li><a href="/">Camera View</a></li>
+      <li ><a href="/get_person_page">Enroll</a></li>
+      <li><a href="/get_entries">Entries</a></li>
     </ul>
   </div>
 </nav>
 
-<div id="includedContent"></div>
+{{data}}
 <!--<img id="img">-->
 </body>
 <script src="{{ url_for('static', filename='asserts/js/custom.js') }}"></script>

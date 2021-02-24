@@ -33,8 +33,11 @@ class Face_app:
         cv2.namedWindow('result', cv2.WINDOW_NORMAL)
 
     def run(self):
-        #Process queued operation
-        self.processed_queued_functions()
+        try:
+            # Process queued operation
+            self.processed_queued_functions()
+        except Exception as e:
+            print(e)
 
         # Gather all frames
         frames = []
@@ -68,8 +71,8 @@ class Face_app:
     def processed_queued_functions(self):
         if self.queue is None:
             return
-        while self.queue.empty():
-            data = self.queue.get()
+        while self.queue.qsize():
+            data = self.queue.get(timeout=3)
             fun_name, kargs = data.items()
             function = self.__getattribute__(fun_name)
             function(**kargs)

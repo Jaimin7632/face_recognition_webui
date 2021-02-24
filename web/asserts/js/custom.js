@@ -1,43 +1,57 @@
-var static = "{{url_for('static',filename='')}}";
-$("#includedContent").load(static+"src/video_feed.html");
+  $(document).ready(function() {
 
-$('.nav li').click(function(){
-  page = $(this).attr('id');
-  if (page.includes('.html')){
-  $("#includedContent").load(static+"src/"+page);
-  }else{
-     $("#includedContent").load(page);
-  }
-});
+    function onResponse(returnData){
+        response = JSON.parse(returnData);
+        console.log(response)
+        if (response.status =="1"){
+            location.reload();
+        }else{
+            alert(response.data)
+        }
+    }
 
-$('.remove-enrol').click(function(){
-   $.post("/remove_enrol_person", {'id': $(this).attr('data')},function(data, status){
-        alert(data.data);
-        //$("#img").attr('src', 'data:image/jpg;base64,'+String(data.data));
-      });
-});
+    $('#remove-enrol').click(function(){
+         $.ajax({
+            type: 'POST',
+            url: "/remove_enrol_person",
+            data: {'id': $(this).attr('data')},
+            dataType: "text",
+            success: function(resultData) { onResponse(resultData); }
+        });
 
-$('.remove-camera').click(function(){
-   $.post("/remove_camera", {'id': $(this).attr('data')},function(data, status){
-        alert(data.data);
-        //$("#img").attr('src', 'data:image/jpg;base64,'+String(data.data));
-      });
-});
+    });
 
-$(".enrol-submit").click(function(){
-    form = $(this).closest("form");;
-    $.post('/enrol/', form.serialize(),
-        function(returnedData){
-             //console.log(returnedData);
-             alert(returnedData.data);
-         });
-});
+    $('#remove-camera').click(function(){
+        $.ajax({
+            type: 'POST',
+            url: "/remove_camera",
+            data: {'id': $(this).attr('data')},
+            dataType: "text",
+            success: function(resultData) { onResponse(resultData); }
+        });
+    });
 
-$(".add-camera").click(function(){
-    form = $(this).closest("form");;
-    $.post('/add_camera/', form.serialize(),
-        function(returnedData){
-             //console.log(returnedData);
-             alert(returnedData.data);
-         });
+    $("#enrol-submit").click(function(){
+        form = $(this).closest("form");
+        $.ajax({
+            type: 'POST',
+            url: "/enrol",
+            data: form.serialize(),
+            dataType: "text",
+            success: function(resultData) { onResponse(resultData); }
+        });
+    });
+
+    $("#add-camera").click(function(){
+
+        form = $(this).closest("form");
+        $.ajax({
+            type: 'POST',
+            url: "/add_camera",
+            data: form.serialize(),
+            dataType: "text",
+            success: function(resultData) { onResponse(resultData); }
+        });
+
+    });
 });
