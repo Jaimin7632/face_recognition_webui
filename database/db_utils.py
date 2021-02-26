@@ -71,11 +71,11 @@ def add_entry(**kargs):
         return False, str(e)
 
 
-def search_entry(id=None, starttime=None, endtime=None, limit=None):
+def search_entry(name=None, starttime=None, endtime=None, limit=None):
     try:
         conditions = []
-        if id is not None:
-            conditions.append(User.id == id)
+        if name is not None:
+            conditions.append(Entry.name == name)
         if starttime:
             conditions.append(Entry.time >= starttime)
         if endtime:
@@ -84,15 +84,15 @@ def search_entry(id=None, starttime=None, endtime=None, limit=None):
 
         if limit is not None:
             if conditions:
-                entries = Entry.select().join(User).where(*conditions).limit(limit).objects()
+                entries = Entry.select().where(*conditions).limit(limit).objects()
             else:
-                entries = Entry.select().join(User).limit(limit).objects()
+                entries = Entry.select().limit(limit).objects()
 
         else:
             if conditions:
-                entries = Entry.select().join(User).where(*conditions).objects()
+                entries = Entry.select().where(*conditions).objects()
             else:
-                entries = Entry.select().join(User).objects()
+                entries = Entry.select().objects()
 
 
         data = [[entry.id, entry.User.name, entry.time] for entry in entries]

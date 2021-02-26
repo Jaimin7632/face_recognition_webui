@@ -5,7 +5,7 @@ from src.face_app import Face_app
 import cv2
 import os
 import numpy as np
-from multiprocessing import Process, Queue
+from queue import Queue
 from flask import Flask, render_template, Response, request, jsonify,Markup
 
 from database import db_utils
@@ -60,14 +60,12 @@ def get_person_image():
 
 @app.route('/enrol', methods=['POST','GET'])
 def enrol_person():
-    #TODO: fix image receive error
     image = request.files.get('image')
     name = request.form.get('name')
-    print(request.files, image, name)
     if image is None or name is None:
         return create_response(False, "image or name parameter missing")
 
-    npimg = np.fromstring(image.read(), np.uint8)
+    npimg = np.frombuffer(image.read(), dtype=np.uint8)
     # convert numpy array to image
     image = cv2.imdecode(npimg, cv2.IMREAD_COLOR)
     data = dict()
@@ -77,11 +75,11 @@ def enrol_person():
     }
 
     queue.put(data)
-    return create_response(True, f'{name} is added for enrol')
+    return create_response(True, f'Image added for enrol')
 
 
 @app.route('/remove_enrol', methods=['POST','GET'])
-def remove_enrol_person():
+def remove_enrol():
     id = request.form.get('id')
 
     if id is None:

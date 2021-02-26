@@ -54,7 +54,12 @@ class Face_app:
             frames_output.append([frame, faces])
             for face in faces:
                 result = embedding_utils.compare_with_enrolled_data(query=face.normed_embedding)
-                #TODO: store entry
+                name, dist = result
+                db_utils.add_entry(name=name, time=datetime.now())
+
+                x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
+                color = (255,0,0) if name.lower() not in 'unknown' else (0,0,255)
+                cv2.putText(frame, name, (x1, y2+15),0, 2,color)
 
         # draw names and bbox on images
         for frame, output in frames_output:
@@ -62,18 +67,22 @@ class Face_app:
                 x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-        combined_image = utils.generate_combine_image(frames)
+        combined_image = None
+        if frames:
+            combined_image = utils.generate_combine_image(frames)
 
-        cv2.imshow('result', combined_image)
-        cv2.waitKey(1)
+
+            cv2.imshow('result', combined_image)
+            cv2.waitKey(1)
         return combined_image
 
     def processed_queued_functions(self):
         if self.queue is None:
             return
-        while self.queue.qsize():
+
+        while self.queue.qsize() > 0:
             data = self.queue.get(timeout=3)
-            fun_name, kargs = data.items()
+            fun_name, kargs = list(data.items())[0]
             function = self.__getattribute__(fun_name)
             function(**kargs)
 
@@ -102,12 +111,15 @@ class Face_app:
         return True
 
     def add_camera(self, camera_path):
+        cap_status, cap_result = self.get_camera_object(camera_path)
+        if not cap_status:
+            print(f'Error: camera: {camera_path}, {cap_result}')
+            return
         status, camera_id = db_utils.add_camera(camera_path=camera_path)
         if status:
-            cap_status, cap_result = self.get_camera_object(camera_path)
-            if not cap_status:
-                print(f'Error: camera: {camera_path}, {cap_result}')
+            print(f'Camera :{camera_path} added')
             self.CAMERA_OBJECTS.append(cap_result)
+
 
     def get_camera_object(self, camera_path):
         try:

@@ -20,7 +20,7 @@ class User(BaseModel):
 
 
 class Entry(BaseModel):
-    user = ForeignKeyField(User, backref='entry', on_delete='CASCADE')
+    name = CharField()#ForeignKeyField(User, backref='entry', on_delete='CASCADE')
     time = DateTimeField()
 
 class Camera(BaseModel):

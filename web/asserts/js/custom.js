@@ -1,7 +1,6 @@
   $(document).ready(function() {
 
-    function onResponse(returnData){
-        response = JSON.parse(returnData);
+    function onResponse(response){
         console.log(response)
         if (response.status =="1"){
             location.reload();
@@ -10,35 +9,43 @@
         }
     }
 
-    $('#remove-enrol').click(function(){
+    $('.remove-enrol').click(function(){
          $.ajax({
             type: 'POST',
-            url: "/remove_enrol_person",
+            url: "/remove_enrol",
             data: {'id': $(this).attr('data')},
-            dataType: "text",
+            mimeTypes:"text",
+            cache: false,
             success: function(resultData) { onResponse(resultData); }
         });
 
     });
 
-    $('#remove-camera').click(function(){
+    $('.remove-camera').click(function(){
         $.ajax({
             type: 'POST',
             url: "/remove_camera",
             data: {'id': $(this).attr('data')},
-            dataType: "text",
+            mimeTypes:"text",
+            cache: false,
             success: function(resultData) { onResponse(resultData); }
         });
     });
 
     $("#enrol-submit").click(function(){
+
         form = $(this).closest("form");
+        var formdata = new FormData(form[0]);
         $.ajax({
             type: 'POST',
             url: "/enrol",
-            data: form.serialize(),
-            dataType: "text",
-            success: function(resultData) { onResponse(resultData); }
+            data: formdata,
+            mimeTypes:"multipart/form-data",
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(resultData) {
+            onResponse(resultData); }
         });
     });
 
@@ -49,7 +56,8 @@
             type: 'POST',
             url: "/add_camera",
             data: form.serialize(),
-            dataType: "text",
+            mimeTypes:"text",
+            cache: false,
             success: function(resultData) { onResponse(resultData); }
         });
 
