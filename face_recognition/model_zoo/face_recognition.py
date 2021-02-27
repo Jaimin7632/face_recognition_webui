@@ -93,7 +93,11 @@ class FaceRecognition:
 
 
 def get_arcface(name, download=True,
-                root='~/.insightface/models', **kwargs):
+                root='resources/models', **kwargs):
+    model_path = kwargs.get('model_path')
+    if model_path is not None:
+        return FaceRecognition(name, True, model_path)
+
     if not download:
         return FaceRecognition(name, False, None)
     else:
@@ -103,7 +107,7 @@ def get_arcface(name, download=True,
 
 
 def arcface_r100_v1(**kwargs):
-    return get_arcface("r100_v1", download=True, **kwargs)
+    return get_arcface("r100_v1", download=False, **kwargs)
 
 
 def arcface_mfn_v1(**kwargs):

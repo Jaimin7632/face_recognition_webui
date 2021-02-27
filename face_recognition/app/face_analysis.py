@@ -5,6 +5,7 @@ import collections
 import numpy as np
 from numpy.linalg import norm
 
+import config
 from ..model_zoo import model_zoo
 from ..utils import face_align
 
@@ -21,9 +22,9 @@ class FaceAnalysis:
     def __init__(self, det_name='retinaface_r50_v1', rec_name='arcface_r100_v1', ga_name='genderage_v1', batch_size=1):
         assert det_name is not None
         self.batch_size = batch_size
-        self.det_model = model_zoo.get_model(det_name)
+        self.det_model = model_zoo.get_model(det_name,model_path=config.FACE_RECOGNITION_MODEL_PATH)
         if rec_name is not None:
-            self.rec_model = model_zoo.get_model(rec_name)
+            self.rec_model = model_zoo.get_model(rec_name, model_path=config.FACE_RECOGNITION_MODEL_PATH)
         else:
             self.rec_model = None
         if ga_name is not None:

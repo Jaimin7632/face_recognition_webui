@@ -55,17 +55,21 @@ class Face_app:
             for face in faces:
                 result = embedding_utils.compare_with_enrolled_data(query=face.normed_embedding)
                 name, dist = result
+                if dist > config.UNKNOWN_THRES:
+                    name = 'unknown'
                 db_utils.add_entry(name=name, time=datetime.now())
 
-                x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
-                color = (255,0,0) if name.lower() not in 'unknown' else (0,0,255)
-                cv2.putText(frame, name, (x1, y2+15),0, 2,color)
+                if config.VISUALIZE:
+                    x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
+                    color = (255,0,0) if name.lower() not in 'unknown' else (0,0,255)
+                    cv2.putText(frame, name, (x1, y2+15),0, 2,color)
 
         # draw names and bbox on images
-        for frame, output in frames_output:
-            for face in output:
-                x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        if config.VISUALIZE:
+            for frame, output in frames_output:
+                for face in output:
+                    x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
         combined_image = None
         if frames:

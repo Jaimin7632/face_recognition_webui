@@ -12,7 +12,7 @@ def init_database():
         database.create_tables([Entry])
     if not database.table_exists('camera'):
         database.create_tables([Camera])
-        add_camera('0')
+        # add_camera('0')
 
 
 def add_camera(camera_path):
