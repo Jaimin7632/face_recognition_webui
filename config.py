@@ -5,7 +5,7 @@ FACE_RECOGNITION_MODEL_PATH = "resources/models/arcface_r100_v1/model-0000.param
 FACE_DETECTION_MODEL_PATH = "resources/models/retinaface_r50_v1/R50-0000.params"
 
 BATCH_SIZE = 4
-DETECTION_SCALE = 0.2
+DETECTION_SCALE = 0.3
 UNKNOWN_THRES = 0.87
 
 ENROLLED_DATA_PATH = 'resources/enrolled_data'

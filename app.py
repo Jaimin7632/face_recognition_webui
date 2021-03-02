@@ -114,8 +114,11 @@ def add_camera():
     if camera_str is None:
         return create_response(False, "camera url is missing")
 
-    status, camera_id = db_utils.add_camera(camera_path=camera_str)
-
+    data = dict()
+    data['add_camera'] = {
+        'camera_path': camera_str
+    }
+    queue.put(data)
     return create_response(True, f'{camera_str} is added')
 
 
@@ -126,7 +129,9 @@ def remove_camera():
         return create_response(False, "camera url is missing")
 
     status, rows_affected = db_utils.remove_camera(id=camera_id)
-
+    data = dict()
+    data['update_camera_objects'] = dict()
+    queue.put(data)
     return create_response(True, f'{rows_affected} cameras deleted')
 
 

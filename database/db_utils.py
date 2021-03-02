@@ -45,7 +45,7 @@ def get_enrolled_persons():
 
 def get_person_details_from_id(id):
     try:
-        person = User.get(User.id == id)
+        person = User.get(User.id == int(id))
         return True, [person.name, person.email, person.enrol_date]
     except Exception as e:
         return False, "No record found for id"
@@ -95,7 +95,7 @@ def search_entry(name=None, starttime=None, endtime=None, limit=None):
                 entries = Entry.select().objects()
 
 
-        data = [[entry.id, entry.User.name, entry.time] for entry in entries]
+        data = [[ entry.name, entry.time] for entry in entries]
         return True, data
 
     except Exception as e:

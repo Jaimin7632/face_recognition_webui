@@ -8,6 +8,7 @@ from numpy.linalg import norm
 import config
 from ..model_zoo import model_zoo
 from ..utils import face_align
+from sklearn import preprocessing
 
 __all__ = ['FaceAnalysis',
            'Face']
@@ -22,7 +23,7 @@ class FaceAnalysis:
     def __init__(self, det_name='retinaface_r50_v1', rec_name='arcface_r100_v1', ga_name='genderage_v1', batch_size=1):
         assert det_name is not None
         self.batch_size = batch_size
-        self.det_model = model_zoo.get_model(det_name,model_path=config.FACE_RECOGNITION_MODEL_PATH)
+        self.det_model = model_zoo.get_model(det_name,model_path=config.FACE_DETECTION_MODEL_PATH)
         if rec_name is not None:
             self.rec_model = model_zoo.get_model(rec_name, model_path=config.FACE_RECOGNITION_MODEL_PATH)
         else:
@@ -39,7 +40,7 @@ class FaceAnalysis:
         if self.ga_model is not None:
             self.ga_model.prepare(ctx_id)
 
-    def get(self, img, det_thresh=0.8, det_scale=1.0, max_num=0):
+    def get(self, img, det_thresh=0.1, det_scale=1.0, max_num=0):
         bboxes, landmarks = self.det_model.detect(img, threshold=det_thresh, scale=det_scale)
         if bboxes.shape[0] == 0:
             return []
@@ -77,7 +78,7 @@ class FaceAnalysis:
                 img, face = data
 
                 embedding_norm = norm(embedding_list[i])
-                normed_embedding = embedding_list[i] / embedding_norm
+                normed_embedding = preprocessing.normalize(np.array(embedding_list[i]).reshape(1,-1))#embedding_list[i] / embedding_norm
                 face = Face(face_crop=face.face_crop, bbox=face.bbox, landmark=face.landmark, det_score=face.det_score, embedding=embedding_list[i], gender=face.gender, age=face.age
                         , normed_embedding= normed_embedding, embedding_norm=embedding_norm)
                 return_data.append(face)

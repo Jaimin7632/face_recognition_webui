@@ -13,15 +13,8 @@ class Face_app:
         # Database initialization
         db_utils.init_database()
 
-        self.CAMERA_IDS, self.CAMERA_OBJECTS = [], []
-        _, camera_paths = db_utils.get_active_camera_list()
-        for c_id, camera_path in camera_paths:
-            cap_status, cap_result = self.get_camera_object(camera_path)
-            if not cap_status:
-                print(f'Error: camera: {camera_path}, {cap_result}')
-
-            print(f"Cam initialized : {camera_path}")
-            self.CAMERA_OBJECTS.append(cap_result)
+        self.CAMERA_OBJECTS = []
+        self.update_camera_objects()
 
 
         # Load gallery data into memory
@@ -30,7 +23,8 @@ class Face_app:
         # queue for perform operation in running server
         self.queue = queue
 
-        cv2.namedWindow('result', cv2.WINDOW_NORMAL)
+        # cv2.namedWindow('result', cv2.WINDOW_NORMAL)
+
 
     def run(self):
         try:
@@ -55,29 +49,31 @@ class Face_app:
             for face in faces:
                 result = embedding_utils.compare_with_enrolled_data(query=face.normed_embedding)
                 name, dist = result
+
                 if dist > config.UNKNOWN_THRES:
                     name = 'unknown'
                 db_utils.add_entry(name=name, time=datetime.now())
 
                 if config.VISUALIZE:
                     x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
-                    color = (255,0,0) if name.lower() not in 'unknown' else (0,0,255)
-                    cv2.putText(frame, name, (x1, y2+15),0, 2,color)
+                    color = (0,255,0) if name.lower() not in 'unknown' else (0,0,255)
+                    # status, name_data = db_utils.get_person_details_from_id(name)
+                    cv2.putText(frame, name, (x1, y2+30),0, 1.5,color)
 
         # draw names and bbox on images
         if config.VISUALIZE:
             for frame, output in frames_output:
                 for face in output:
                     x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (200, 0, 0), 2)
 
         combined_image = None
         if frames:
             combined_image = utils.generate_combine_image(frames)
 
 
-            cv2.imshow('result', combined_image)
-            cv2.waitKey(1)
+            # cv2.imshow('result', combined_image)
+            # cv2.waitKey(1)
         return combined_image
 
     def processed_queued_functions(self):
@@ -122,6 +118,17 @@ class Face_app:
         status, camera_id = db_utils.add_camera(camera_path=camera_path)
         if status:
             print(f'Camera :{camera_path} added')
+            self.CAMERA_OBJECTS.append(cap_result)
+
+    def update_camera_objects(self):
+        self.CAMERA_OBJECTS = []
+        _, camera_paths = db_utils.get_active_camera_list()
+        for c_id, camera_path in camera_paths:
+            cap_status, cap_result = self.get_camera_object(camera_path)
+            if not cap_status:
+                print(f'Error: camera: {camera_path}, {cap_result}')
+
+            print(f"Cam initialized : {camera_path}")
             self.CAMERA_OBJECTS.append(cap_result)
 
 

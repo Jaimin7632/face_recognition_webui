@@ -93,12 +93,12 @@ def save_ref_file():
     gallery_class_names = []
     for class_name, images_embed in ref_dir['embeddings'].items():
         for img_name, embedding in images_embed.items():
-            gallery_imgs_emb.append(embedding[0])
+            gallery_imgs_emb.append(embedding.tolist()[0])
             gallery_class_names.append(class_name)
 
     gallery_imgs_emb = torch.Tensor(gallery_imgs_emb).to(
-        0 if config.USE_GPU else "cpu")
-    precomputed_dist = torch.Tensor.sum(gallery_imgs_emb ** 2, dim=1) if len(gallery_class_names) > 1 else None
+        "cuda:0" if config.USE_GPU else "cpu")
+    precomputed_dist = torch.Tensor.sum(gallery_imgs_emb ** 2, dim=1) if len(gallery_class_names) > 0 else None
 
 
 def compare_with_enrolled_data(query):
@@ -119,7 +119,7 @@ def compare_with_enrolled_data(query):
 
     if precomputed_dist is not None:
         emb = torch.Tensor(query).reshape(1, 512).to(
-            0 if config.USE_GPU else "cpu")
+            "cuda:0" if config.USE_GPU else "cpu")
         dist = torch.Tensor.sum(emb ** 2, dim=1) + precomputed_dist - 2 * emb.mm(
             torch.transpose(gallery_imgs_emb, 0, 1))
         dist = torch.sqrt_(torch.abs(dist)).tolist()[0]
@@ -128,7 +128,7 @@ def compare_with_enrolled_data(query):
             output_dict.setdefault(gallery_class_names[i], []).append(val)
         for key, val in output_dict.items():
             value = sorted(val)
-            output_dict[key] = sum(value[:3]) / 3 if len(value) > 2 else len(value)
+            output_dict[key] = sum(value[:3]) / (3 if len(value) > 2 else len(value))
 
     class_dist = sorted(output_dict.items(), key=lambda x: x[1])
 
@@ -163,8 +163,12 @@ def add_person(id, img):
         ref_dir['embeddings'][id][img_name] = emb
 
         # store image in filestystem
-        store_path = os.path.join(config.ENROLLED_DATA_PATH, id, str(number_of_images) + '.png')
-        cv2.imwrite(store_path, img)
+        store_path = os.path.join(config.ENROLLED_DATA_PATH, id)
+        if not os.path.exists(store_path):
+            os.makedirs(store_path)
+
+        print(f'stored at : {store_path}')
+        cv2.imwrite(os.path.join(store_path, str(number_of_images) + '.png'), img)
 
         save_ref_file()
 

@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 
-def generate_combine_image(images, image_size=(512, 400)):
+def generate_combine_image(images, image_size=(1024, 800)):
     #Add blank image if img is none in images list
     images_list = []
     for img in images:
