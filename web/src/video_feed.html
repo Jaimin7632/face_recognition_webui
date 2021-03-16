@@ -5,13 +5,15 @@
     <div class="col-md-3">
         <center>
             <form enctype=multipart/form-data method='POST'>
-            <div class="row">
-                <div class="col-md-12"><input class="form-control" name='camera_url' placeholder="CAMERA URL" type="text"></div>
-                <br>
-                <input class="form-control btn btn-success" id="add-camera" style="width:20vw;"  type="button" value="ADD">
-            </div>
+                <div class="row">
+                    <div class="col-md-12"><input class="form-control" name='camera_url' placeholder="CAMERA URL"
+                                                  type="text"></div>
+                    <br>
+                    <input class="form-control btn btn-success" id="add-camera" style="width:20vw;" type="button"
+                           value="ADD">
+                </div>
 
-        </form>
+            </form>
         </center>
 
         <h3>Camera List</h3>
@@ -23,7 +25,7 @@
 
                 <td>{{d.1}}</td>
                 <td>
-                    <input class="btn btn-danger remove-camera"  data="{{d.0}}"  type="button" value="X">
+                    <input class="btn btn-danger remove-camera" data="{{d.0}}" type="button" value="X">
                 </td>
             </tr>
             {% endfor %}

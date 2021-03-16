@@ -71,15 +71,17 @@ class FaceAnalysis:
             face = Face(face_crop=_img, bbox=bbox, landmark=landmark, det_score=det_score, embedding=embedding, gender=gender, age=age
                         , normed_embedding=normed_embedding, embedding_norm=embedding_norm)
             ret.append([_img, face])
+
         return_data = []
         if self.rec_model is not None:
             embedding_list = self.rec_model.get_embeddings_list([img for img, face in ret], batch_size=self.batch_size)
             for i, data in enumerate(ret):
                 img, face = data
-
                 embedding_norm = norm(embedding_list[i])
-                normed_embedding = preprocessing.normalize(np.array(embedding_list[i]).reshape(1,-1))#embedding_list[i] / embedding_norm
+                normed_embedding = np.array(embedding_list[i]).reshape(1,-1)#embedding_list[i] / embedding_norm
                 face = Face(face_crop=face.face_crop, bbox=face.bbox, landmark=face.landmark, det_score=face.det_score, embedding=embedding_list[i], gender=face.gender, age=face.age
                         , normed_embedding= normed_embedding, embedding_norm=embedding_norm)
+
                 return_data.append(face)
+
         return return_data
