@@ -1,3 +1,4 @@
 .video_feed{
-    width:100vw; height:100vh; border:none
+    width:100vw; height:100vh; border:none;
+    overflow-x:scroll;
 }

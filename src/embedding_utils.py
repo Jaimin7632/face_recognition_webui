@@ -148,7 +148,7 @@ def add_person(id, img):
     global ref_dir
 
     try:
-        faces = face_analysis.get(img=img, det_scale=1)
+        faces = face_analysis.get(img=img, det_scale=0.5)
         if len(faces) < 0:
             return False
 

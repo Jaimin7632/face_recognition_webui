@@ -19,21 +19,25 @@ def add_camera(camera_path):
     camera = Camera.create(camera_path=camera_path)
     return True, camera.id
 
+
 def remove_camera(id):
-    rows_affected = Camera.delete().where(Camera.id==id).execute()
+    rows_affected = Camera.delete().where(Camera.id == id).execute()
     return True, rows_affected
+
 
 def get_active_camera_list():
     cameras = Camera.select().objects()
     return True, [[camera.id, camera.camera_path] for camera in cameras]
 
-def add_user(**kargs):
+
+def add_person(**kargs):
     try:
         user = User.create(**kargs)
         user.save()
         return True, user.id
     except Exception as e:
         return False, str(e)
+
 
 def get_enrolled_persons():
     try:
@@ -71,7 +75,7 @@ def add_entry(**kargs):
         return False, str(e)
 
 
-def search_entry(name=None, starttime=None, endtime=None, limit=None):
+def search_entry(name=None, starttime=None, endtime=None, limit=100):
     try:
         conditions = []
         if name is not None:
@@ -81,21 +85,19 @@ def search_entry(name=None, starttime=None, endtime=None, limit=None):
         if endtime:
             conditions.append(Entry.time <= endtime)
 
-
         if limit is not None:
             if conditions:
-                entries = Entry.select().where(*conditions).limit(limit).objects()
+                entries = Entry.select().where(*conditions).order_by(Entry.time.desc()).limit(limit).objects()
             else:
-                entries = Entry.select().limit(limit).objects()
+                entries = Entry.select().order_by(Entry.time.desc()).limit(limit).objects()
 
         else:
             if conditions:
-                entries = Entry.select().where(*conditions).objects()
+                entries = Entry.select().where(*conditions).order_by(Entry.time.desc()).objects()
             else:
-                entries = Entry.select().objects()
+                entries = Entry.select().order_by(Entry.time.desc()).objects()
 
-
-        data = [[ entry.name, entry.time] for entry in entries]
+        data = [[entry.name, entry.time] for entry in entries]
         return True, data
 
     except Exception as e:

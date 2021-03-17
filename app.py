@@ -145,7 +145,7 @@ if __name__ == "__main__":
     fp = Face_app(queue=queue)
 
     print("Face app initialized")
-    server_process = threading.Thread(target=start_server)
+    server_process = threading.Thread(target=start_server, daemon=True)
     server_process.start()
     print("Server started")
 
@@ -164,5 +164,4 @@ if __name__ == "__main__":
             print(e)
             break
 
-    server_process.terminate()
     print("Server successfully stopped")

@@ -1,7 +1,9 @@
 from __future__ import division
 
 import collections
+from copy import deepcopy
 
+import cv2
 import numpy as np
 from numpy.linalg import norm
 
@@ -9,6 +11,8 @@ import config
 from ..model_zoo import model_zoo
 from ..utils import face_align
 from sklearn import preprocessing
+import config
+from ..model_zoo.cordinateReg_landmarks import Handler
 
 __all__ = ['FaceAnalysis',
            'Face']
@@ -32,6 +36,8 @@ class FaceAnalysis:
             self.ga_model = model_zoo.get_model(ga_name)
         else:
             self.ga_model = None
+
+        self.handler = Handler(config.FACE_LANDMARKS_MODEL_PATH, 0, ctx_id=0 if config.USE_GPU else -1, det_size=640)
 
     def prepare(self, ctx_id, nms=0.4):
         self.det_model.prepare(ctx_id, nms)
@@ -59,8 +65,21 @@ class FaceAnalysis:
         for i in range(bboxes.shape[0]):
             bbox = bboxes[i, 0:4]
             det_score = bboxes[i, 4]
-            landmark = landmarks[i]
-            _img = face_align.norm_crop(img, landmark=landmark)
+            # landmark = landmarks[i]
+            x1, y1, x2, y2 = list(map(int, bbox.tolist()))
+            face_crop = deepcopy(img[y1:y2, x1:x2])
+
+            try:
+                preds = self.handler.get(face_crop)[0]
+                landmark = np.array([preds[38],
+                                     preds[88],
+                                     preds[80],
+                                     preds[52],
+                                     preds[61]])
+                _img = face_align.norm_crop(face_crop, landmark=landmark)
+            except Exception as e:
+                continue
+
             embedding = None
             embedding_norm = None
             normed_embedding = None

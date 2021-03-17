@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 import cv2
@@ -23,6 +24,7 @@ class Face_app:
         # queue for perform operation in running server
         self.queue = queue
 
+        self.recent_entries = {}
         # cv2.namedWindow('result', cv2.WINDOW_NORMAL)
 
 
@@ -52,28 +54,30 @@ class Face_app:
 
                 if dist > config.UNKNOWN_THRES:
                     name = 'unknown'
-                db_utils.add_entry(name=name, time=datetime.now())
+
+                if not self.is_entry_recent(name=name, embedding=face.normed_embedding):
+                    db_utils.add_entry(name=name, time=datetime.now())
 
                 if config.VISUALIZE:
                     x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
                     color = (0,255,0) if name.lower() not in 'unknown' else (0,0,255)
-                    # status, name_data = db_utils.get_person_details_from_id(name)
-                    cv2.putText(frame, name, (x1, y2+30),0, 1.5,color)
 
-        # draw names and bbox on images
-        if config.VISUALIZE:
-            for frame, output in frames_output:
-                for face in output:
+                    # draw names and bbox on images
+                    name_to_show = name
+                    status, person_data = db_utils.get_person_details_from_id(name)
+                    if status:
+                        name_to_show = f'{person_data[0]} -- {name}'
+                    cv2.putText(frame, name_to_show, (x1, y2+30),0, 1.5,color)
+
                     x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (200, 0, 0), 2)
 
         combined_image = None
         if frames:
-            combined_image = utils.generate_combine_image(frames)
-
-
+            combined_image = utils.generate_combine_image(frames, image_size=(1280, 1000))
             # cv2.imshow('result', combined_image)
             # cv2.waitKey(1)
+
         return combined_image
 
     def processed_queued_functions(self):
@@ -87,7 +91,7 @@ class Face_app:
             function(**kargs)
 
     def add_person(self, img, name):
-        status, result = db_utils.add_user(name=name, enrol_date=datetime.now())
+        status, result = db_utils.add_person(name=name, enrol_date=datetime.now())
         if not status:
             print(result)
         status = embedding_utils.add_person(id=result, img=img)
@@ -131,7 +135,6 @@ class Face_app:
             print(f"Cam initialized : {camera_path}")
             self.CAMERA_OBJECTS.append(cap_result)
 
-
     def get_camera_object(self, camera_path):
         try:
             if str(camera_path).isnumeric():
@@ -140,3 +143,34 @@ class Face_app:
             return True, cap
         except Exception as e:
             return False, e
+
+    def is_entry_recent(self, name, embedding, timeframe=5):
+        ct = time.time()
+        if name.lower() != 'unknown':
+            if name not in self.recent_entries:
+                self.recent_entries[name] = ct
+                return False
+
+            previous_ct = self.recent_entries[name]
+            if ct - previous_ct > timeframe:
+                self.recent_entries[name] = ct
+                return False
+            else:
+                return True
+        else:
+            self.recent_entries.setdefault('unknown', {})
+            is_matched_unknown = False
+
+            for previous_ct in list(self.recent_entries['unknown'].keys()):
+                p_embedding= self.recent_entries['unknown'][previous_ct]
+                if ct - previous_ct > timeframe:
+                    del self.recent_entries['unknown'][previous_ct]
+                    continue
+
+                distance = np.linalg.norm(p_embedding- embedding)
+                if distance < config.UNKNOWN_THRES:
+                    is_matched_unknown = True
+
+            self.recent_entries['unknown'][ct] = embedding
+
+            return is_matched_unknown
