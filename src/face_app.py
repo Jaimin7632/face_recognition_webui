@@ -1,8 +1,11 @@
+import os
 import time
+from copy import deepcopy
 from datetime import datetime
 
 import cv2
 import numpy as np
+
 import config
 from database import db_utils
 from face_recognition import face_analysis
@@ -17,7 +20,6 @@ class Face_app:
         self.CAMERA_OBJECTS = []
         self.update_camera_objects()
 
-
         # Load gallery data into memory
         embedding_utils.load_gallery()
 
@@ -26,7 +28,6 @@ class Face_app:
 
         self.recent_entries = {}
         # cv2.namedWindow('result', cv2.WINDOW_NORMAL)
-
 
     def run(self):
         try:
@@ -49,6 +50,8 @@ class Face_app:
             faces = face_analysis.get(img=frame, det_scale=config.DETECTION_SCALE)
             frames_output.append([frame, faces])
             for face in faces:
+                x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
+
                 result = embedding_utils.compare_with_enrolled_data(query=face.normed_embedding)
                 name, dist = result
 
@@ -56,18 +59,17 @@ class Face_app:
                     name = 'unknown'
 
                 if not self.is_entry_recent(name=name, embedding=face.normed_embedding):
-                    db_utils.add_entry(name=name, time=datetime.now())
+                    self.add_entry(name=name, face_crop=deepcopy(frame[y1:y2, x1:x2]))
 
                 if config.VISUALIZE:
-                    x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
-                    color = (0,255,0) if name.lower() not in 'unknown' else (0,0,255)
+                    color = (0, 255, 0) if name.lower() not in 'unknown' else (0, 0, 255)
 
                     # draw names and bbox on images
                     name_to_show = name
                     status, person_data = db_utils.get_person_details_from_id(name)
                     if status:
-                        name_to_show = f'{person_data[0]} -- {name}'
-                    cv2.putText(frame, name_to_show, (x1, y2+30),0, 1.5,color)
+                        name_to_show = f'{person_data[0]} - {name}'
+                    cv2.putText(frame, name_to_show, (x1, y2 + 30), 0, 1.5, color)
 
                     x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (200, 0, 0), 2)
@@ -90,28 +92,64 @@ class Face_app:
             function = self.__getattribute__(fun_name)
             function(**kargs)
 
+    def add_entry(self, face_crop, name):
+        status, entry_id = db_utils.add_entry(name=name, time=datetime.now())
+        if not status:
+            print(f'Recognition entry not update in database')
+            return False
+
+        img_name = str(entry_id)+'.png'
+        embedding_utils.save_entry_image(face_crop=face_crop, img_name=img_name)
+        return True
+
     def add_person(self, img, name):
         status, result = db_utils.add_person(name=name, enrol_date=datetime.now())
         if not status:
             print(result)
+            return False
+
         status = embedding_utils.add_person(id=result, img=img)
         if not status:
             db_utils.remove_user(result)
             print("Error : image not add in filesystem")
+            return False
 
         print(f'{name} person successfully added')
         return True
 
     def remove_person(self, id):
-        person_name = db_utils.get_person_details_from_id(id)[0]
         status, result = db_utils.remove_user(id=id)
         if not status:
             print(result)
+            return False
         status = embedding_utils.remove_person(id=id)
         if not status:
             print("Error : image not removed from filesystem")
+            return False
 
+        person_name = db_utils.get_person_details_from_id(id)[0]
         print(f'{person_name} successfully removed')
+        return True
+
+    def update_person(self, entry_id):
+        status, result = db_utils.search_entry(id=entry_id)
+        if not status:
+            print(result)
+            return False
+
+        e_id, e_name, e_time = result[0]  # e_name==user.id
+        img_path = os.path.join(config.PROCESSED_DATA_PATH, str(e_id)+'.png')
+        if not os.path.exists(img_path):
+            print(f'entry image not exist')
+            return False
+
+        image = cv2.imread(img_path)
+        status = embedding_utils.add_person(id=e_name, img=image)
+        if not status:
+            print("Error : image not add in filesystem")
+            return False
+
+        print(f'{e_name} person successfully added')
         return True
 
     def add_camera(self, camera_path):
@@ -162,12 +200,12 @@ class Face_app:
             is_matched_unknown = False
 
             for previous_ct in list(self.recent_entries['unknown'].keys()):
-                p_embedding= self.recent_entries['unknown'][previous_ct]
+                p_embedding = self.recent_entries['unknown'][previous_ct]
                 if ct - previous_ct > timeframe:
                     del self.recent_entries['unknown'][previous_ct]
                     continue
 
-                distance = np.linalg.norm(p_embedding- embedding)
+                distance = np.linalg.norm(p_embedding - embedding)
                 if distance < config.UNKNOWN_THRES:
                     is_matched_unknown = True
 

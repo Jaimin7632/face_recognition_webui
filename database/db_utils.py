@@ -75,29 +75,33 @@ def add_entry(**kargs):
         return False, str(e)
 
 
-def search_entry(name=None, starttime=None, endtime=None, limit=100):
+def search_entry(id=None, name=None, starttime=None, endtime=None, limit=100):
     try:
-        conditions = []
-        if name is not None:
-            conditions.append(Entry.name == name)
-        if starttime:
-            conditions.append(Entry.time >= starttime)
-        if endtime:
-            conditions.append(Entry.time <= endtime)
+        if id is None:
+            conditions = []
+            if name is not None:
+                conditions.append(Entry.name == name)
+            if starttime:
+                conditions.append(Entry.time >= starttime)
+            if endtime:
+                conditions.append(Entry.time <= endtime)
 
-        if limit is not None:
-            if conditions:
-                entries = Entry.select().where(*conditions).order_by(Entry.time.desc()).limit(limit).objects()
+            if limit is not None:
+                if conditions:
+                    entries = Entry.select().where(*conditions).order_by(Entry.time.desc()).limit(limit).objects()
+                else:
+                    entries = Entry.select().order_by(Entry.time.desc()).limit(limit).objects()
+
             else:
-                entries = Entry.select().order_by(Entry.time.desc()).limit(limit).objects()
-
+                if conditions:
+                    entries = Entry.select().where(*conditions).order_by(Entry.time.desc()).objects()
+                else:
+                    entries = Entry.select().order_by(Entry.time.desc()).objects()
         else:
-            if conditions:
-                entries = Entry.select().where(*conditions).order_by(Entry.time.desc()).objects()
-            else:
-                entries = Entry.select().order_by(Entry.time.desc()).objects()
+            entry = Entry.get_by_id(id)
+            entries = [entry]
 
-        data = [[entry.name, entry.time] for entry in entries]
+        data = [[entry.id, entry.name, entry.time] for entry in entries]
         return True, data
 
     except Exception as e:

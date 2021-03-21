@@ -200,3 +200,17 @@ def remove_person(id):
     except Exception as e:
         print(e)
         return False
+
+
+def save_entry_image(face_crop, img_name):
+    process_crops_path = Path(config.PROCESSED_DATA_PATH)
+    process_crops_path.mkdir(parents=True, exist_ok=True)
+
+    img_store_path = process_crops_path / str(img_name)
+    try:
+        cv2.imwrite(str(img_store_path), face_crop)
+    except Exception as e:
+        print(e)
+        return False
+
+    return True

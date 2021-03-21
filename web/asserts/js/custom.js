@@ -62,4 +62,32 @@
         });
 
     });
+
+    $("#enrol-person-entry").click(function(){
+
+        form = $(this).closest("form");
+        $.ajax({
+            type: 'POST',
+            url: "/enrol_person_entry",
+            data: form.serialize(),
+            mimeTypes:"text",
+            cache: false,
+            success: function(resultData) { onResponse(resultData); }
+        });
+
+    });
+
+    $("#update_enrolled_person").click(function(){
+
+        form = $(this).closest("form");
+        $.ajax({
+            type: 'POST',
+            url: "/update_enrolled_person",
+            data: form.serialize(),
+            mimeTypes:"text",
+            cache: false,
+            success: function(resultData) { onResponse(resultData); }
+        });
+
+    });
 });

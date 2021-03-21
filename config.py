@@ -10,6 +10,7 @@ DETECTION_SCALE = 0.3
 UNKNOWN_THRES = 1.05
 
 ENROLLED_DATA_PATH = 'resources/enrolled_data'
+PROCESSED_DATA_PATH = 'resources/crops_data'
 
 USE_GPU = True
 VISUALIZE = True
