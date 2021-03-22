@@ -46,7 +46,7 @@ class FaceAnalysis:
         if self.ga_model is not None:
             self.ga_model.prepare(ctx_id)
 
-    def get(self, img, det_thresh=0.1, det_scale=1.0, max_num=0):
+    def get(self, img, det_thresh=0.6, det_scale=1.0, max_num=0):
         bboxes, landmarks = self.det_model.detect(img, threshold=det_thresh, scale=det_scale)
         if bboxes.shape[0] == 0:
             return []
@@ -66,7 +66,7 @@ class FaceAnalysis:
             bbox = bboxes[i, 0:4]
             det_score = bboxes[i, 4]
             # landmark = landmarks[i]
-            x1, y1, x2, y2 = list(map(int, bbox.tolist()))
+            x1, y1, x2, y2 = list(map(lambda x: 0 if x < 0 else int(x), bbox.tolist()))
             face_crop = deepcopy(img[y1:y2, x1:x2])
 
             try:

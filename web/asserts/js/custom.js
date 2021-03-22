@@ -63,7 +63,7 @@
 
     });
 
-    $("#enrol-person-entry").click(function(){
+    $(".enrol-person-entry").click(function(){
 
         form = $(this).closest("form");
         $.ajax({
@@ -77,7 +77,7 @@
 
     });
 
-    $("#update_enrolled_person").click(function(){
+    $(".update_enrolled_person").click(function(){
 
         form = $(this).closest("form");
         $.ajax({

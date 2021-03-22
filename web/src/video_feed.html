@@ -1,40 +1,9 @@
-<div class="row">
-    <div class="col-md-9">
-        <center>
-            <iframe class="video_feed" src="/video_feed" title="description"></iframe>
-        </center>
-    </div>
-    <div class="col-md-3">
-        <center>
-            <form enctype=multipart/form-data method='POST'>
-                <div class="row">
-                    <div class="col-md-12"><input class="form-control" name='camera_url' placeholder="CAMERA URL"
-                                                  type="text"></div>
-                    <br>
-                    <input class="form-control btn btn-success" id="add-camera" style="width:20vw;" type="button"
-                           value="ADD">
-                </div>
-
-            </form>
-        </center>
-
-        <h3>Camera List</h3>
-        <table class="table">
-
-            <tbody>
-            {% for d in data %}
-            <tr>
-
-                <td>{{d.1}}</td>
-                <td>
-                    <input class="btn btn-danger remove-camera" data="{{d.0}}" type="button" value="X">
-                </td>
-            </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-
-    </div>
+<div class="container-fluid">
+    <center>
+        <iframe class="video_feed" src="/video_feed" title="description"></iframe>
+    </center>
 </div>
+<script>
+    $('.li-videofeed').addClass('active');
+</script>
 

@@ -50,7 +50,7 @@ class Face_app:
             faces = face_analysis.get(img=frame, det_scale=config.DETECTION_SCALE)
             frames_output.append([frame, faces])
             for face in faces:
-                x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
+                x1, y1, x2, y2 = list(map(lambda x: 0 if x < 0 else int(x), face.bbox.tolist()))
 
                 result = embedding_utils.compare_with_enrolled_data(query=face.normed_embedding)
                 name, dist = result
@@ -118,6 +118,7 @@ class Face_app:
         return True
 
     def remove_person(self, id):
+        person_name = db_utils.get_person_details_from_id(id)[0]
         status, result = db_utils.remove_user(id=id)
         if not status:
             print(result)
@@ -127,7 +128,6 @@ class Face_app:
             print("Error : image not removed from filesystem")
             return False
 
-        person_name = db_utils.get_person_details_from_id(id)[0]
         print(f'{person_name} successfully removed')
         return True
 

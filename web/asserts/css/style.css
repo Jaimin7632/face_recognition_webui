@@ -2,3 +2,74 @@
     width:100vw; height:100vh; border:none;
     overflow-x:scroll;
 }
+html, body{
+    background:#FFF;
+}
+.sidebar {
+  position: fixed;
+  width: 20%;
+  height: 100vh;
+  background: #14213D;
+  font-size: 0.80em;
+}
+.main_content{
+    position:absolute;
+    right:0;
+    width:80%;
+    height:auto;
+    overflow:scroll-y;
+
+}
+.nav {
+  position: relative;
+  margin: 0 15%;
+  text-align: right;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: bold;
+}
+
+.nav ul {
+  list-style: none;
+}
+.nav ul li {
+  position: relative;
+  margin: 3.2em 0;
+}
+.nav ul li a {
+  line-height: 5em;
+  text-transform: uppercase;
+  text-decoration: none;
+  letter-spacing: 0.4em;
+  color: rgba(255, 255, 255, 0.35);
+  display: block;
+  transition: all ease-out 300ms;
+}
+.nav ul li.active a {
+  color: white;
+}
+.nav ul li:not(.active)::after {
+  opacity: 0.2;
+}
+.nav ul li:not(.active):hover a {
+  color: rgba(255, 255, 255, 0.75);
+}
+.nav ul li::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 0.2em;
+  background: black;
+  left: 0;
+  bottom: 0;
+  background-image: linear-gradient(to right, #5e42a6, #b74e91);
+}
+
+.full-width{
+width:100%;
+}
+.mid-color{
+background:#e5e5e5;
+color:#000000;
+}
+.pad-20{padding:20px;}

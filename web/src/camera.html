@@ -1,0 +1,51 @@
+<div class="container-fluid">
+
+    <div class="mid-color pad-20">
+        <h3>Add Camera</h3>
+        <hr>
+        <form enctype=multipart/form-data method='POST'>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Camera Address</label>
+                        <input class="form-control" name='camera_url' placeholder="CAMERA URL"
+                               type="text">
+                        <small class="form-text text-muted">Any streaming address or a camera or video path relative
+                            to server</small>
+                    </div>
+                </div>
+
+            </div>
+            <input class="form-control btn btn-success" id="add-camera" type="button"
+                   value="ADD">
+
+        </form>
+    </div>
+
+    <h3>Camera List</h3>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Camera Address</th>
+            <th>#</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        {% for d in data %}
+        <tr>
+
+            <td>{{d.1}}</td>
+            <td>
+                <input class="btn btn-danger remove-camera" data="{{d.0}}" type="button" value="REMOVE">
+            </td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+</div>
+<script>
+    $('.li-camera').addClass('active');
+</script>

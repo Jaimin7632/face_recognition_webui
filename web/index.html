@@ -1,31 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Face Recognition</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='asserts/css/bootstrap.min.css') }}">
-  <script src="{{ url_for('static', filename='asserts/js/jquery-3.2.1.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='asserts/js/bootstrap.min.js') }}"></script>
+    <title>Face Recognition</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='asserts/css/bootstrap.min.css') }}">
+    <script src="{{ url_for('static', filename='asserts/js/jquery-3.2.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='asserts/js/bootstrap.min.js') }}"></script>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='asserts/css/style.css') }}">
 </head>
 <body>
 
-<nav class="navbar navbar-inverse">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="#">Face Recognition</a>
-    </div>
-    <ul class="nav navbar-nav">
-      <li><a href="/">Camera View</a></li>
-      <li ><a href="/get_person_page">Enroll</a></li>
-      <li><a href="/get_entries">Entries</a></li>
-    </ul>
-  </div>
-</nav>
+<aside class="sidebar">
+    <nav class="nav">
+        <ul>
+            <li class="li-videofeed"><a href="/">Video Feed</a></li>
+            <li class="li-camera"><a href="/camera">Camera</a></li>
+            <li class="li-enrol"><a href="/get_person_page">Enrol</a></li>
+            <li class="li-entries"><a href="/get_entries">Entries</a></li>
+        </ul>
+    </nav>
+</aside>
+<div class="main_content">
+    {{data}}
+</div>
 
-{{data}}
-<!--<img id="img">-->
 </body>
 <script src="{{ url_for('static', filename='asserts/js/custom.js') }}"></script>
 </html>

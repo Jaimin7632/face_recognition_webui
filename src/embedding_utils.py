@@ -149,7 +149,8 @@ def add_person(id, img):
 
     try:
         faces = face_analysis.get(img=img, det_scale=0.5)
-        if len(faces) < 0:
+        if not faces:
+            print(f'No Face detected in image')
             return False
 
         id = str(id)

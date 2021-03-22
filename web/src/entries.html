@@ -1,0 +1,45 @@
+<div class="container-fluid">
+<!--    <h2>Entries</h2>-->
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Person id</th>
+        <!--        <th>name</th>-->
+        <th>Timedate</th>
+        <th>Image</th>
+        <th>#</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for d in data %}
+    <tr>
+
+        <td>{{d.1}}</td>
+        <td>{{d.2}}</td>
+        <td><img style="height:200px; width:200px;" src="{{d.3}}"/></td>
+        <td>
+            <form>
+
+                {% if d.1 == 'unknown' %}
+                <input type="hidden" value="{{d.3}}" name="img_path">
+                <input type="text" class="form-control" name="name" placeholder="Person name" required>
+                <input type="submit" class="btn btn-success full-width enrol-person-entry" value="ENROL">
+                {% else %}
+                <input type="hidden" value="{{d.0}}" name="entry_id">
+                <input type="submit" class="btn btn-success full-width update_enrolled_person" value="UPDATE">
+                {% endif %}
+
+
+            </form>
+        </td>
+
+        <!--        <td>{{d.2}}</td>-->
+    </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+</div>
+<script>
+    $('.li-entries').addClass('active');
+</script>

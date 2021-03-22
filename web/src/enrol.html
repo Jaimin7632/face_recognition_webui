@@ -1,0 +1,63 @@
+<!--add -->
+
+<div class="container-fluid">
+    <div class="mid-color pad-20" >
+        <h3>Enrol Image</h3>
+        <hr>
+        <form enctype=multipart/form-data method='POST'>
+            <div class="row">
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Select Image</label>
+                        <input class="form-control" name='image' type="file">
+                        <small class="form-text text-muted">Select face image for enroll</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Name / Existing ID</label>
+                        <input class="form-control" name='name' type="text" placeholder="John">
+                        <small class="form-text text-muted">Name for register or provide ID for update existing person</small>
+                    </div>
+                </div>
+
+            </div>
+                <input class="form-control btn btn-success" id="enrol-submit" type="button"
+                   value="ADD">
+
+        </form>
+    </div>
+
+
+    <h3>Enrol Data</h3>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Enroll date</th>
+            <th>#</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for d in data %}
+        <tr>
+
+            <td>{{d.0}}</td>
+            <td>{{d.1}}</td>
+            <td>{{d.2}}</td>
+            <td>{{d.3}}</td>
+            <td>
+                <input class="btn btn-danger remove-enrol" data="{{d.0}}" type="button" value="REMOVE">
+            </td>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+<script>
+    $('.li-enrol').addClass('active');
+</script>

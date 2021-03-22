@@ -31,9 +31,13 @@ def create_response(status, message):
 @app.route('/', methods=['POST', 'GET'])
 def index():
     # data = video_feed_page()
-    status, data = db_utils.get_active_camera_list()
-    return render_template('index.html', data=Markup(render_template('src/video_feed.html', data=data)))
+    return render_template('index.html', data=Markup(render_template('src/video_feed.html')))
 
+@app.route('/camera', methods=['POST', 'GET'])
+def camera():
+    # data = video_feed_page()
+    status, data = db_utils.get_active_camera_list()
+    return render_template('index.html', data=Markup(render_template('src/camera.html', data=data)))
 
 def gen_frames():
     while True:
@@ -51,7 +55,7 @@ def video_feed():
 @app.route('/get_person_page', methods=['POST', 'GET'])
 def get_person_page():
     status, data = db_utils.get_enrolled_persons()
-    return render_template('index.html', data=Markup(render_template('src/person.html', data=data)))
+    return render_template('index.html', data=Markup(render_template('src/enrol.html', data=data)))
 
 
 @app.route('/get_person_image', methods=['POST', 'GET'])
@@ -85,7 +89,7 @@ def enrol_person():
 
 @app.route('/enrol_person_entry', methods=['POST', 'GET'])
 def enrol_person_entry():
-    img_path = request.files.get('img_path')
+    img_path = request.form.get('img_path')
     name = request.form.get('name')
     if not os.path.exists(img_path) or name is None:
         return create_response(False, "image not exist or name parameter missing")
@@ -102,7 +106,7 @@ def enrol_person_entry():
 
 @app.route('/update_enrolled_person', methods=['POST', 'GET'])
 def update_enrolled_person():
-    entry_id = request.files.get('entry_id')
+    entry_id = request.form.get('entry_id')
     if entry_id is None:
         return create_response(False, "entry id parameter missing")
 
@@ -140,7 +144,7 @@ def get_entries():
         entry_id = data[i][0]
         data[i].append(os.path.join(str(process_data_abspath), str(entry_id) + '.png'))
 
-    return render_template('index.html', data=Markup(render_template('src/entry.html', data=data)))
+    return render_template('index.html', data=Markup(render_template('src/entries.html', data=data)))
 
 
 @app.route('/get_active_camera', methods=['POST', 'GET'])
@@ -184,7 +188,7 @@ def send_from_local_dir(filename):
 
 def start_server():
     db_utils.init_database()
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=8090)
 
 
 if __name__ == "__main__":
