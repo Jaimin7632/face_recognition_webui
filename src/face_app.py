@@ -138,6 +138,11 @@ class Face_app:
             return False
 
         e_id, e_name, e_time = result[0]  # e_name==user.id
+        status, _ = db_utils.get_person_details_from_id(e_name)
+        if not status:
+            print(f'User not found for id {e_name}')
+            return False
+
         img_path = os.path.join(config.PROCESSED_DATA_PATH, str(e_id)+'.png')
         if not os.path.exists(img_path):
             print(f'entry image not exist')
@@ -209,6 +214,7 @@ class Face_app:
                 if distance < config.UNKNOWN_THRES:
                     is_matched_unknown = True
 
-            self.recent_entries['unknown'][ct] = embedding
+            if not is_matched_unknown:
+                self.recent_entries['unknown'][ct] = embedding
 
             return is_matched_unknown
