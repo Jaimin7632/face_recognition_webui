@@ -1,9 +1,18 @@
-import config
+import pymysql
 from peewee import *
 
+import config
+
 if config.USE_MYSQL_DATABASE:
-    from peewee_mssql import MssqlDatabase
-    database = MssqlDatabase('Face_recognition', host=config.mysql_host, user=config.mysql_user, password=config.mysql_password)
+    conn = pymysql.connect(host=config.mysql_host, user=config.mysql_user,
+                           password=config.mysql_password)
+    try:
+        conn.cursor().execute('CREATE DATABASE Face_recognition')
+    except Exception:
+        pass
+    conn.close()
+    database = MySQLDatabase('Face_recognition', host=config.mysql_host, user=config.mysql_user,
+                             password=config.mysql_password)
 else:
     database = SqliteDatabase('resources/database_sqllite.db')
 
@@ -20,10 +29,11 @@ class User(BaseModel):
 
 
 class Entry(BaseModel):
-    name = CharField()#ForeignKeyField(User, backref='entry', on_delete='CASCADE')
+    name = CharField()  # ForeignKeyField(User, backref='entry', on_delete='CASCADE')
     time = DateTimeField()
+
 
 class Camera(BaseModel):
     camera_path = CharField()
-    date= DateTimeField(null=True)
+    date = DateTimeField(null=True)
     status = BooleanField(default=True)

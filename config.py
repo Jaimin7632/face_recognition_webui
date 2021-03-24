@@ -16,6 +16,6 @@ USE_GPU = True
 VISUALIZE = True
 
 USE_MYSQL_DATABASE = False # if false then sqllite database use
-mysql_host = 'host.example.com'
-mysql_user = 'domain\\username'
+mysql_host = 'localhost'
+mysql_user = 'root'
 mysql_password = 'password'
