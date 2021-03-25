@@ -1,39 +1,37 @@
-import pymysql
-from peewee import *
+from datetime import datetime
+
+from sqlalchemy import create_engine, MetaData, Table, Column, String, DateTime, Boolean
+from sqlalchemy.dialects.mysql import INTEGER
 
 import config
 
-if config.USE_MYSQL_DATABASE:
-    conn = pymysql.connect(host=config.mysql_host, user=config.mysql_user,
-                           password=config.mysql_password)
-    try:
-        conn.cursor().execute('CREATE DATABASE Face_recognition')
-    except Exception:
-        pass
-    conn.close()
-    database = MySQLDatabase('Face_recognition', host=config.mysql_host, user=config.mysql_user,
-                             password=config.mysql_password)
+if config.USE_MSSQL_DATABASE:
+    # MsSQL
+    engine = create_engine(f'mssql+pymssql://{config.mssql_user}:{config.mssql_password}@{config.mssql_host}/{config.database_name}')
 else:
-    database = SqliteDatabase('resources/database_sqllite.db')
+    engine = create_engine(f'sqlite:///resources/{config.database_name}.db')
 
+meta = MetaData()
 
-class BaseModel(Model):
-    class Meta:
-        database = database
+User = Table(
+    'user', meta,
+    Column('id', INTEGER, primary_key=True, autoincrement=True),
+    Column('name', String),
+    Column('email', String,nullable=True),
+    Column('enrol_date', DateTime, nullable=True)
+)
 
+Entry = Table(
+    'entry', meta,
+    Column('id', INTEGER, primary_key=True, autoincrement=True),
+    Column('name', String),
+    Column('time', DateTime)
+)
 
-class User(BaseModel):
-    name = CharField()
-    email = CharField(null=True)
-    enrol_date = DateTimeField(null=True)
-
-
-class Entry(BaseModel):
-    name = CharField()  # ForeignKeyField(User, backref='entry', on_delete='CASCADE')
-    time = DateTimeField()
-
-
-class Camera(BaseModel):
-    camera_path = CharField()
-    date = DateTimeField(null=True)
-    status = BooleanField(default=True)
+Camera = Table(
+    'camera', meta,
+    Column('id', INTEGER, primary_key=True, autoincrement=True),
+    Column('camera_path', String),
+    Column('date', DateTime, default=datetime.now()),
+    Column('status', Boolean, default=True),
+)

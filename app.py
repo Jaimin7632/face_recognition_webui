@@ -141,17 +141,11 @@ def get_entries():
 
     process_data_abspath = Path(config.PROCESSED_DATA_PATH)
     for i in range(len(data)):
+        data[i] = list(data[i])
         entry_id = data[i][0]
         data[i].append(os.path.join(str(process_data_abspath), str(entry_id) + '.png'))
 
     return render_template('index.html', data=Markup(render_template('src/entries.html', data=data)))
-
-
-@app.route('/get_active_camera', methods=['POST', 'GET'])
-def get_active_camera():
-    status, camera_paths = db_utils.get_active_camera_list()
-
-    return create_response(True, camera_paths)
 
 
 @app.route('/add_camera', methods=['POST', 'GET'])

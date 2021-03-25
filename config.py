@@ -15,7 +15,15 @@ PROCESSED_DATA_PATH = 'resources/crops_data'
 USE_GPU = True
 VISUALIZE = True
 
-USE_MYSQL_DATABASE = False # if false then sqllite database use
-mysql_host = 'localhost'
-mysql_user = 'root'
-mysql_password = 'password'
+"""
+Database 
+- Default SqlLite db is used
+- For use MsSQL 
+    - CREATE DATABASE {DATABASE_NAME} 
+    - Change flag in config
+"""
+USE_MSSQL_DATABASE = False
+database_name = 'face_recognition_db'
+mssql_host = 'localhost'
+mssql_user = 'root'
+mssql_password = 'password'

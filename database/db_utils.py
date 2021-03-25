@@ -6,59 +6,76 @@ def init_database():
     init when server start(ex. web, backend)
     :return:
     """
-    if not database.table_exists('user'):
-        database.create_tables([User])
-    if not database.table_exists('entry'):
-        database.create_tables([Entry])
-    if not database.table_exists('camera'):
-        database.create_tables([Camera])
-        # add_camera('0')
+    meta.create_all(engine)
 
 
 def add_camera(camera_path):
-    camera = Camera.create(camera_path=camera_path)
-    return True, camera.id
+    camera = Camera.insert().values(camera_path=camera_path)
+    conn = engine.connect()
+    result = conn.execute(camera)
+    conn.close()
+    return True, result.inserted_primary_key[0]
 
 
 def remove_camera(id):
-    rows_affected = Camera.delete().where(Camera.id == id).execute()
-    return True, rows_affected
+    query = Camera.delete().where(Camera.c.id == int(id))
+    conn = engine.connect()
+    result = conn.execute(query)
+    conn.close()
+    return True, result.rowcount
 
 
 def get_active_camera_list():
-    cameras = Camera.select().objects()
-    return True, [[camera.id, camera.camera_path] for camera in cameras]
+    query = Camera.select()
+    conn = engine.connect()
+    result = conn.execute(query)
+    result = list(result)
+    conn.close()
+    return True, result
 
 
 def add_person(**kargs):
     try:
-        user = User.create(**kargs)
-        user.save()
-        return True, user.id
+        query = User.insert().values(**kargs)
+        conn = engine.connect()
+        result = conn.execute(query)
+        conn.close()
+        return True, result.inserted_primary_key[0]
     except Exception as e:
         return False, str(e)
 
 
 def get_enrolled_persons():
     try:
-        persons = User.select().objects()
-        return True, [[person.id, person.name, person.email, person.enrol_date] for person in persons]
+        query = User.select()
+        conn = engine.connect()
+        result = conn.execute(query)
+        result = list(result)
+        conn.close()
+        return True, result
     except Exception as e:
         return False, e
 
 
 def get_person_details_from_id(id):
     try:
-        person = User.get(User.id == int(id))
-        return True, [person.name, person.email, person.enrol_date]
+        query = User.select().where(User.c.id == int(id))
+        conn = engine.connect()
+        result = conn.execute(query)
+        result = list(result)
+        conn.close()
+        return True, result[0]
     except Exception as e:
         return False, "No record found for id"
 
 
 def remove_user(id):
     try:
-        ret = User.delete().where(User.id == id).execute()
-        if ret > 0:
+        query = User.delete().where(User.c.id == int(id)).execute()
+        conn = engine.connect()
+        result = conn.execute(query)
+        conn.close()
+        if result.rowcount > 0:
             return True, "successfully removed"
         else:
             return False, "No record found for this id"
@@ -68,9 +85,11 @@ def remove_user(id):
 
 def add_entry(**kargs):
     try:
-        entry = Entry.create(**kargs)
-        entry.save()
-        return True, entry.id
+        query = Entry.insert().values(**kargs)
+        conn = engine.connect()
+        result = conn.execute(query)
+        conn.close()
+        return True, result.inserted_primary_key[0]
     except Exception as e:
         return False, str(e)
 
@@ -80,29 +99,32 @@ def search_entry(id=None, name=None, starttime=None, endtime=None, limit=100):
         if id is None:
             conditions = []
             if name is not None:
-                conditions.append(Entry.name == name)
+                conditions.append(Entry.c.name == name)
             if starttime:
-                conditions.append(Entry.time >= starttime)
+                conditions.append(Entry.c.time >= starttime)
             if endtime:
-                conditions.append(Entry.time <= endtime)
+                conditions.append(Entry.c.time <= endtime)
 
             if limit is not None:
                 if conditions:
-                    entries = Entry.select().where(*conditions).order_by(Entry.time.desc()).limit(limit).objects()
+                    query = Entry.select().where(*conditions).order_by(Entry.c.time.desc()).limit(limit)
                 else:
-                    entries = Entry.select().order_by(Entry.time.desc()).limit(limit).objects()
+                    query = Entry.select().order_by(Entry.c.time.desc()).limit(limit)
 
             else:
                 if conditions:
-                    entries = Entry.select().where(*conditions).order_by(Entry.time.desc()).objects()
+                    query = Entry.select().where(*conditions).order_by(Entry.c.time.desc())
                 else:
-                    entries = Entry.select().order_by(Entry.time.desc()).objects()
+                    query = Entry.select().order_by(Entry.c.time.desc())
         else:
-            entry = Entry.get_by_id(id)
-            entries = [entry]
+            query = Entry.select().where(Entry.c.id == int(id))
 
-        data = [[entry.id, entry.name, entry.time] for entry in entries]
-        return True, data
+        conn = engine.connect()
+        result = conn.execute(query)
+        result = list(result)
+        conn.close()
+
+        return True, result
 
     except Exception as e:
         return False, str(e)

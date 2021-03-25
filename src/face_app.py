@@ -68,7 +68,7 @@ class Face_app:
                     name_to_show = name
                     status, person_data = db_utils.get_person_details_from_id(name)
                     if status:
-                        name_to_show = f'{person_data[0]} - {name}'
+                        name_to_show = f'{person_data[1]} - {name}'
                     cv2.putText(frame, name_to_show, (x1, y2 + 30), 0, 1.5, color)
 
                     x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
@@ -103,6 +103,15 @@ class Face_app:
         return True
 
     def add_person(self, img, name):
+        faces = face_analysis.get(img=img, det_scale=0.5)
+        if not faces:
+            print(f'No Face detected in image')
+            return False
+        matched_name, dist = embedding_utils.compare_with_enrolled_data(query=faces[0].normed_embedding)
+        if dist <= config.UNKNOWN_THRES:
+            print(f'Person already enrolled with different id {matched_name}')
+            return False
+
         status, result = db_utils.add_person(name=name, enrol_date=datetime.now())
         if not status:
             print(result)
@@ -118,7 +127,7 @@ class Face_app:
         return True
 
     def remove_person(self, id):
-        person_name = db_utils.get_person_details_from_id(id)[0]
+        person_name = db_utils.get_person_details_from_id(id)[1]
         status, result = db_utils.remove_user(id=id)
         if not status:
             print(result)
@@ -170,7 +179,8 @@ class Face_app:
     def update_camera_objects(self):
         self.CAMERA_OBJECTS = []
         _, camera_paths = db_utils.get_active_camera_list()
-        for c_id, camera_path in camera_paths:
+        for camera_row in camera_paths:
+            c_id, camera_path = camera_row[:2]
             cap_status, cap_result = self.get_camera_object(camera_path)
             if not cap_status:
                 print(f'Error: camera: {camera_path}, {cap_result}')
