@@ -31,7 +31,7 @@ Entry = Table(
 Camera = Table(
     'camera', meta,
     Column('id', INTEGER, primary_key=True, autoincrement=True),
-    Column('camera_path', String),
+    Column('camera_path', String, unique=True),
     Column('date', DateTime, default=datetime.now()),
     Column('status', Boolean, default=True),
 )

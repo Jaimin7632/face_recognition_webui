@@ -1,7 +1,16 @@
 <div class="container-fluid">
-    <center>
-        <iframe class="video_feed" src="/video_feed" title="description"></iframe>
-    </center>
+    <div class="col-md-9">
+        <iframe class="video_feed" name="video_f"  title="description"></iframe>
+    </div>
+    <div class="col-md-3">
+        <form target="video_f" action="/video_feed" method="post">
+            {% for d in data %}
+            <input type="checkbox" id="x{{d.0}}" name="camera_id" value="{{d.0}}">
+            <label for="x{{d.0}}"> {{d.1}}</label><br>
+             {% endfor %}
+          <input type="submit" class="btn btn-success">
+        </form>
+    </div>
 </div>
 <script>
     $('.li-videofeed').addClass('active');

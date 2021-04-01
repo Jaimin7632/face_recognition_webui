@@ -11,12 +11,13 @@ from flask import Flask, render_template, Response, request, jsonify, Markup, se
 
 import config
 from database import db_utils
+from src import utils
 
 from src.face_app import Face_app
 
 app = Flask(__name__, template_folder='web', static_folder='web')
 queue = None
-frame = np.ones((1024, 800), dtype=np.uint8)
+video_feed_frames = []
 if not os.path.exists('./resources'):
     os.makedirs('./resources')
 
@@ -30,8 +31,8 @@ def create_response(status, message):
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-    # data = video_feed_page()
-    return render_template('index.html', data=Markup(render_template('src/video_feed.html')))
+    status, data = db_utils.get_active_camera_list()
+    return render_template('index.html', data=Markup(render_template('src/video_feed.html', data=data)))
 
 @app.route('/camera', methods=['POST', 'GET'])
 def camera():
@@ -39,17 +40,24 @@ def camera():
     status, data = db_utils.get_active_camera_list()
     return render_template('index.html', data=Markup(render_template('src/camera.html', data=data)))
 
-def gen_frames():
+def gen_frames(camera_ids):
     while True:
-        ret, buffer = cv2.imencode('.jpg', frame)
+        frames = [frame for cid, frame in video_feed_frames if str(cid) in camera_ids]
+
+        combined_image = np.ones((1280, 1000), dtype=np.uint8)
+        if frames:
+            combined_image = utils.generate_combine_image(frames, image_size=(1280, 1000))
+
+        ret, buffer = cv2.imencode('.jpg', combined_image)
         byte_frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + byte_frame + b'\r\n')
 
 
-@app.route('/video_feed')
+@app.route('/video_feed', methods=['POST'])
 def video_feed():
-    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    camera_id_to_show = request.form.getlist('camera_id')
+    return Response(gen_frames(camera_id_to_show), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/get_person_page', methods=['POST', 'GET'])
@@ -197,9 +205,9 @@ if __name__ == "__main__":
     while True:
         image = None
         try:
-            image = fp.run()
-            if image is not None:
-                frame = cv2.resize(image, (1024, 800))
+            images = fp.run()
+            if images is not None and images:
+                video_feed_frames = images
         except KeyboardInterrupt:
             print('keyboard intrupt')
             traceback.print_exc()

@@ -38,12 +38,12 @@ class Face_app:
 
         # Gather all frames
         frames = []
-        for camera in self.CAMERA_OBJECTS:
+        for camera_id, camera in self.CAMERA_OBJECTS:
             ret, image = camera.read()
-            frames.append(image if ret else None)
+            frames.append((camera_id, image if ret else None))
 
         frames_output = []
-        for frame in frames:
+        for camera_id, frame in frames:
             if frame is None:
                 frames_output.append([frame, []])
                 continue
@@ -74,13 +74,13 @@ class Face_app:
                     x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (200, 0, 0), 2)
 
-        combined_image = None
-        if frames:
-            combined_image = utils.generate_combine_image(frames, image_size=(1280, 1000))
+        # combined_image = None
+        # if frames:
+        #     combined_image = utils.generate_combine_image(frames, image_size=(1280, 1000))
             # cv2.imshow('result', combined_image)
             # cv2.waitKey(1)
 
-        return combined_image
+        return frames
 
     def processed_queued_functions(self):
         if self.queue is None:
@@ -174,7 +174,7 @@ class Face_app:
         status, camera_id = db_utils.add_camera(camera_path=camera_path)
         if status:
             print(f'Camera :{camera_path} added')
-            self.CAMERA_OBJECTS.append(cap_result)
+            self.CAMERA_OBJECTS.append((camera_id, cap_result))
 
     def update_camera_objects(self):
         self.CAMERA_OBJECTS = []
@@ -186,7 +186,7 @@ class Face_app:
                 print(f'Error: camera: {camera_path}, {cap_result}')
 
             print(f"Cam initialized : {camera_path}")
-            self.CAMERA_OBJECTS.append(cap_result)
+            self.CAMERA_OBJECTS.append((c_id, cap_result))
 
     def get_camera_object(self, camera_path):
         try:
@@ -216,7 +216,7 @@ class Face_app:
 
             for previous_ct in list(self.recent_entries['unknown'].keys()):
                 p_embedding = self.recent_entries['unknown'][previous_ct]
-                if ct - previous_ct > timeframe:
+                if ct - previous_ct > 60 * 30:  # half hour
                     del self.recent_entries['unknown'][previous_ct]
                     continue
 
