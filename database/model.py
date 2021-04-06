@@ -18,7 +18,10 @@ User = Table(
     Column('id', INTEGER, primary_key=True, autoincrement=True),
     Column('name', String),
     Column('email', String,nullable=True),
-    Column('enrol_date', DateTime, nullable=True)
+    Column('enrol_date', DateTime, nullable=True),
+    Column('company_id', String, nullable=True),
+    Column('grade', String, nullable=True),
+    Column('extra', String, nullable=True)
 )
 
 Entry = Table(

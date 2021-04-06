@@ -71,7 +71,7 @@ def get_person_details_from_id(id):
 
 def remove_user(id):
     try:
-        query = User.delete().where(User.c.id == int(id)).execute()
+        query = User.delete().where(User.c.id == int(id))
         conn = engine.connect()
         result = conn.execute(query)
         conn.close()

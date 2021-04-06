@@ -34,11 +34,13 @@ def index():
     status, data = db_utils.get_active_camera_list()
     return render_template('index.html', data=Markup(render_template('src/video_feed.html', data=data)))
 
+
 @app.route('/camera', methods=['POST', 'GET'])
 def camera():
     # data = video_feed_page()
     status, data = db_utils.get_active_camera_list()
     return render_template('index.html', data=Markup(render_template('src/camera.html', data=data)))
+
 
 def gen_frames(camera_ids):
     while True:
@@ -79,6 +81,9 @@ def get_person_image():
 def enrol_person():
     image = request.files.get('image')
     name = request.form.get('name')
+    company_id = request.form.get('company_id')
+    grade = request.form.get('grade')
+    extra = request.form.get('extra')
     if image is None or name is None:
         return create_response(False, "image or name parameter missing")
 
@@ -88,6 +93,9 @@ def enrol_person():
     data = dict()
     data['add_person'] = {
         'name': name,
+        'company_id': '' if company_id is None else company_id,
+        'grade': '' if grade is None else grade,
+        'extra': '' if extra is None else extra,
         'img': image
     }
 
@@ -99,6 +107,9 @@ def enrol_person():
 def enrol_person_entry():
     img_path = request.form.get('img_path')
     name = request.form.get('name')
+    company_id = request.form.get('company_id')
+    grade = request.form.get('grade')
+    extra = request.form.get('extra')
     if not os.path.exists(img_path) or name is None:
         return create_response(False, "image not exist or name parameter missing")
 
@@ -106,11 +117,15 @@ def enrol_person_entry():
     data = dict()
     data['add_person'] = {
         'name': name,
+        'company_id': '' if company_id is None else company_id,
+        'grade': '' if grade is None else grade,
+        'extra': '' if extra is None else extra,
         'img': image
     }
 
     queue.put(data)
     return create_response(True, f'Image added for enrol')
+
 
 @app.route('/update_enrolled_person', methods=['POST', 'GET'])
 def update_enrolled_person():

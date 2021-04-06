@@ -22,7 +22,14 @@
 
                 {% if d.1 == 'unknown' %}
                 <input type="hidden" value="{{d.3}}" name="img_path">
+                <label>Name*</label>
                 <input type="text" class="form-control" name="name" placeholder="Person name" required>
+                <label>Company ID</label>
+                <input class="form-control" name='company_id' type="text" placeholder="company id">
+                <label>Grade</label>
+                <input class="form-control" name='grade' type="text" placeholder="grade">
+                <label>Extra</label>
+                <input class="form-control" name='extra' type="text" placeholder="other...">
                 <input type="submit" class="btn btn-success full-width enrol-person-entry" value="ENROL">
                 {% else %}
                 <input type="hidden" value="{{d.0}}" name="entry_id">

@@ -62,23 +62,22 @@ class Face_app:
                     self.add_entry(name=name, face_crop=deepcopy(frame[y1:y2, x1:x2]))
 
                 if config.VISUALIZE:
-                    color = (0, 255, 0) if name.lower() not in 'unknown' else (0, 0, 255)
-
                     # draw names and bbox on images
-                    name_to_show = name
                     status, person_data = db_utils.get_person_details_from_id(name)
+                    text_dict = {'id': 'Unknown'}
                     if status:
-                        name_to_show = f'{person_data[1]} - {name}'
-                    cv2.putText(frame, name_to_show, (x1, y2 + 30), 0, 1.5, color)
+                        text_dict = {'id': person_data[0], 'name': person_data[1], 'company_id': person_data[4],
+                                     'grade': person_data[5], 'extra': person_data[6]}
+                    frame = utils.set_text_with_box(text_dict=text_dict, background=frame, x=x2, y=y1, box_h_w=[y2-y1,150])
 
                     x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
-                    cv2.rectangle(frame, (x1, y1), (x2, y2), (200, 0, 0), 2)
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (150, 150, 150), 2)
 
         # combined_image = None
         # if frames:
         #     combined_image = utils.generate_combine_image(frames, image_size=(1280, 1000))
-            # cv2.imshow('result', combined_image)
-            # cv2.waitKey(1)
+        # cv2.imshow('result', combined_image)
+        # cv2.waitKey(1)
 
         return frames
 
@@ -98,11 +97,11 @@ class Face_app:
             print(f'Recognition entry not update in database')
             return False
 
-        img_name = str(entry_id)+'.png'
+        img_name = str(entry_id) + '.png'
         embedding_utils.save_entry_image(face_crop=face_crop, img_name=img_name)
         return True
 
-    def add_person(self, img, name):
+    def add_person(self, img, name, company_id='', grade='', extra=''):
         faces = face_analysis.get(img=img, det_scale=0.5)
         if not faces:
             print(f'No Face detected in image')
@@ -112,7 +111,8 @@ class Face_app:
             print(f'Person already enrolled with different id {matched_name}')
             return False
 
-        status, result = db_utils.add_person(name=name, enrol_date=datetime.now())
+        status, result = db_utils.add_person(name=name, enrol_date=datetime.now(), company_id=company_id, grade=grade,
+                                             extra=extra)
         if not status:
             print(result)
             return False
@@ -152,7 +152,7 @@ class Face_app:
             print(f'User not found for id {e_name}')
             return False
 
-        img_path = os.path.join(config.PROCESSED_DATA_PATH, str(e_id)+'.png')
+        img_path = os.path.join(config.PROCESSED_DATA_PATH, str(e_id) + '.png')
         if not os.path.exists(img_path):
             print(f'entry image not exist')
             return False
@@ -216,7 +216,7 @@ class Face_app:
 
             for previous_ct in list(self.recent_entries['unknown'].keys()):
                 p_embedding = self.recent_entries['unknown'][previous_ct]
-                if ct - previous_ct > 60 * 30:  # half hour
+                if ct - previous_ct > 60 * 5:  # half hour
                     del self.recent_entries['unknown'][previous_ct]
                     continue
 
