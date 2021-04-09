@@ -53,22 +53,23 @@ class Face_app:
                 x1, y1, x2, y2 = list(map(lambda x: 0 if x < 0 else int(x), face.bbox.tolist()))
 
                 result = embedding_utils.compare_with_enrolled_data(query=face.normed_embedding)
-                name, dist = result
+                matched_id, dist = result
 
                 if dist > config.UNKNOWN_THRES:
-                    name = 'unknown'
+                    matched_id = 'unknown'
 
-                if not self.is_entry_recent(name=name, embedding=face.normed_embedding):
-                    self.add_entry(name=name, face_crop=deepcopy(frame[y1:y2, x1:x2]))
+                if not self.is_entry_recent(name=matched_id, embedding=face.normed_embedding):
+                    self.add_entry(name=matched_id, face_crop=deepcopy(frame[y1:y2, x1:x2]))
 
                 if config.VISUALIZE:
                     # draw names and bbox on images
-                    status, person_data = db_utils.get_person_details_from_id(name)
                     text_dict = {'id': 'Unknown'}
-                    if status:
+                    if matched_id != 'unknown':
+                        person_data = embedding_utils.get_id_metadata(id=matched_id)
                         text_dict = {'id': person_data[0], 'name': person_data[1], 'company_id': person_data[4],
                                      'grade': person_data[5], 'extra': person_data[6]}
-                    frame = utils.set_text_with_box(text_dict=text_dict, background=frame, x=x2, y=y1, box_h_w=[y2-y1,150])
+                    frame = utils.set_text_with_box(text_dict=text_dict, background=frame, x=x2, y=y1,
+                                                    box_h_w=[y2 - y1, 150])
 
                     x1, y1, x2, y2 = list(map(int, face.bbox.tolist()))
                     cv2.rectangle(frame, (x1, y1), (x2, y2), (150, 150, 150), 2)
@@ -117,7 +118,8 @@ class Face_app:
             print(result)
             return False
 
-        status = embedding_utils.add_person(id=result, img=img)
+        status, person_data = db_utils.get_person_details_from_id(result)
+        status = embedding_utils.add_person(id=result, img=img, metadata=person_data)
         if not status:
             db_utils.remove_user(result)
             print("Error : image not add in filesystem")
@@ -197,7 +199,7 @@ class Face_app:
         except Exception as e:
             return False, e
 
-    def is_entry_recent(self, name, embedding, timeframe=5):
+    def is_entry_recent(self, name, embedding, timeframe=30):
         ct = time.time()
         if name.lower() != 'unknown':
             if name not in self.recent_entries:

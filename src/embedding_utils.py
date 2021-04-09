@@ -4,7 +4,6 @@ import shutil
 from pathlib import Path
 
 import cv2
-import mxnet as mx
 import torch
 
 import config
@@ -45,6 +44,8 @@ def load_gallery():
         # db_utils.db_init()
 
         embedding_dict['embeddings'] = {}
+        embedding_dict['metadata'] = {}
+
         for person_dir in gallery_path.iterdir():
             person_name = person_dir.name
             if not person_dir.is_dir():
@@ -138,7 +139,17 @@ def compare_with_enrolled_data(query):
     return class_dist[0]
 
 
-def add_person(id, img):
+def get_id_metadata(id):
+    """
+    return person metadata from ref dir
+    :param id:
+    :return:
+    """
+    global ref_dir
+    return ref_dir['metadata'][id]
+
+
+def add_person(id, img, metadata=None):
     """
     Add user
     :param id:
@@ -157,11 +168,14 @@ def add_person(id, img):
 
         # Update gallery data file
         ref_dir['embeddings'].setdefault(id, {})
+        ref_dir['metadata'].setdefault(id, {})
+
         number_of_images = len(ref_dir['embeddings'][id])
         img_name = str(number_of_images) + '.png'
 
         emb = faces[0].normed_embedding
         ref_dir['embeddings'][id][img_name] = emb
+        ref_dir['metadata'][id] = metadata
 
         # store image in filestystem
         store_path = os.path.join(config.ENROLLED_DATA_PATH, id)
@@ -190,6 +204,7 @@ def remove_person(id):
 
         # Update gallery data file
         del ref_dir['embeddings'][id]
+        del ref_dir['metadata'][id]
 
         # remove filestystem
         path = os.path.join(config.ENROLLED_DATA_PATH, id)
